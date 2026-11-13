@@ -1,0 +1,927 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Чистая голова</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#f4f6f2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121614" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Голова">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600&family=Unbounded:wght@500;600&display=swap">
+<style>
+/* Layout: one-screen app — header / view (map canvas or scrolling page) / bottom tabs. Map = Coggle-like branching tree on a dotted canvas. */
+:root{
+  --bg:#f4f6f2; --surface:#ffffff; --surface-2:#eceff0; --fg:#1b2220; --muted:#68716d; --line:#dde2dc;
+  --dot:#cfd6cf; --node:#ffffff; --accent:#1f6b57; --accent-fg:#ffffff; --danger:#c2392f; --warn:#c7811a; --ok:#2c9a62;
+  --f-fb:#3567d4; --f-tr:#de7420; --f-seo:#1f9566; --f-yt:#d6372f; --f-life:#8556c6; --f-ideas:#b28a12;
+  --b1:#3f7fe0; --b2:#e0582f; --b3:#2aa071; --b4:#b04fc4; --b5:#d99a12; --b6:#1b9db3; --b7:#d6406f; --b8:#6b7f2a;
+  --shadow:0 8px 28px rgba(20,40,30,.14);
+  --font-display:'Unbounded','Onest',system-ui,sans-serif;
+  --font-body:'Onest',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121614; --surface:#1b211e; --surface-2:#232a27; --fg:#e8eeea; --muted:#94a09a; --line:#2e3833;
+  --dot:#2b3430; --node:#1d2420; --accent:#5cc7a2; --accent-fg:#0d1a15; --danger:#ef6b5f; --warn:#e9a43c; --ok:#53c48a;
+  --f-fb:#6b95f0; --f-tr:#f29a52; --f-seo:#4cc28e; --f-yt:#f06a60; --f-life:#ad86ea; --f-ideas:#dcb43c;
+  --b1:#6fa0f2; --b2:#f2805a; --b3:#52c595; --b4:#c77fdc; --b5:#eab93e; --b6:#4cc2d6; --b7:#ef6f97; --b8:#a2b858;
+  --shadow:0 10px 30px rgba(0,0,0,.45); color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#121614; --surface:#1b211e; --surface-2:#232a27; --fg:#e8eeea; --muted:#94a09a; --line:#2e3833;
+  --dot:#2b3430; --node:#1d2420; --accent:#5cc7a2; --accent-fg:#0d1a15; --danger:#ef6b5f; --warn:#e9a43c; --ok:#53c48a;
+  --f-fb:#6b95f0; --f-tr:#f29a52; --f-seo:#4cc28e; --f-yt:#f06a60; --f-life:#ad86ea; --f-ideas:#dcb43c;
+  --b1:#6fa0f2; --b2:#f2805a; --b3:#52c595; --b4:#c77fdc; --b5:#eab93e; --b6:#4cc2d6; --b7:#ef6f97; --b8:#a2b858;
+  --shadow:0 10px 30px rgba(0,0,0,.45); color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+html{background:var(--bg);padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:15px;line-height:1.4;display:flex;flex-direction:column;overflow:hidden;-webkit-tap-highlight-color:transparent}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.top{display:flex;align-items:center;gap:10px;padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));border-bottom:1px solid var(--line);background:var(--bg);min-height:58px}
+.iconbtn{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;flex:none}
+.iconbtn:hover{background:var(--surface-2)}
+.iconbtn svg{width:20px;height:20px}
+.ttl{flex:1;min-width:0}
+.eyebrow{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.ttl h1{margin:0;font-family:var(--font-display);font-weight:600;font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.seg{display:flex;background:var(--surface-2);border-radius:10px;padding:3px;flex:none}
+.seg button{padding:6px 11px;border-radius:8px;font-size:13px;font-weight:500;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--fg);box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.sync{width:9px;height:9px;border-radius:50%;background:var(--muted);flex:none}
+.sync.ok{background:var(--ok)}.sync.slow{background:var(--warn)}.sync.err{background:var(--danger)}
+
+main{flex:1;min-height:0;position:relative;display:flex}
+#page{flex:1;overflow-y:auto;padding-block:16px 110px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+
+/* Home */
+.capture{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.capture-row{display:flex;gap:8px}
+.capture input{flex:1;min-width:0;border:0;background:var(--surface-2);border-radius:10px;padding:11px 12px;font-size:16px}
+.capture input:focus{outline:2px solid var(--accent)}
+.btn{padding:10px 14px;border-radius:10px;font-weight:600;background:var(--surface-2)}
+.btn.primary{background:var(--accent);color:var(--accent-fg)}
+.btn.danger{color:var(--danger)}
+.chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;padding:6px 10px;border-radius:999px;font-size:13px;font-weight:500;border:1px solid var(--line);display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.chip .dot{width:8px;height:8px;border-radius:50%;background:var(--c)}
+.chip[aria-pressed="true"]{border-color:var(--c);background:color-mix(in srgb,var(--c) 14%,transparent)}
+.todaybar{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:16px;background:var(--accent);color:var(--accent-fg);text-align:left;width:100%}
+.todaybar b{font-family:var(--font-display);font-size:26px;font-weight:600;font-variant-numeric:tabular-nums}
+.todaybar span{flex:1;font-size:14px}
+.section-h{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (min-width:640px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.fcard{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;text-align:left;display:flex;flex-direction:column;gap:10px;min-height:128px;transition:transform .12s}
+.fcard:active{transform:scale(.98)}
+.fcard .glyph{width:30px;height:30px}
+.fcard h2{margin:0;font-family:var(--font-display);font-weight:500;font-size:15px;line-height:1.25;text-wrap:balance}
+.fcard .stats{font-size:13px;color:var(--muted);margin-top:auto;font-variant-numeric:tabular-nums}
+.bar{height:4px;border-radius:2px;background:var(--surface-2);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--c)}
+
+/* Lists */
+.task{display:flex;align-items:flex-start;gap:8px;padding:9px 4px 9px calc(4px + var(--ind,0) * 22px);border-bottom:1px solid var(--line)}
+.chk{width:24px;height:24px;border-radius:50%;border:2px solid var(--c,var(--muted));flex:none;display:grid;place-items:center;margin-top:1px}
+.chk svg{width:14px;height:14px;opacity:0}
+.task.done .chk{background:var(--c,var(--muted))}
+.task.done .chk svg{opacity:1;color:var(--surface)}
+.task .txt{flex:1;min-width:0;text-align:left;overflow-wrap:anywhere}
+.task.done .txt .t{color:var(--muted);text-decoration:line-through}
+.task .meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:3px;font-size:12px;color:var(--muted)}
+.tag{padding:1px 7px;border-radius:999px;background:var(--surface-2)}
+.tag.hot{background:color-mix(in srgb,var(--warn) 22%,transparent);color:var(--fg)}
+.tag.late{background:color-mix(in srgb,var(--danger) 20%,transparent);color:var(--fg)}
+.tag.f{background:color-mix(in srgb,var(--c) 16%,transparent);color:var(--fg)}
+.mini{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;color:var(--muted);flex:none}
+.mini:hover{background:var(--surface-2)}
+.mini svg{width:16px;height:16px}
+.caret svg{transition:transform .15s}
+.caret[aria-expanded="true"] svg{transform:rotate(90deg)}
+.caret.none{visibility:hidden}
+.listtools{display:flex;gap:8px;align-items:center}
+.listtools .capture-row{flex:1}
+.toggle{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.empty{padding:28px 12px;text-align:center;color:var(--muted)}
+.empty b{display:block;color:var(--fg);font-family:var(--font-display);font-weight:500;margin-bottom:4px}
+
+/* Map */
+#map{flex:1;position:relative;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;background-color:var(--bg);background-image:radial-gradient(var(--dot) 1.2px,transparent 1.3px);cursor:grab}
+#map svg{position:absolute;inset:0;width:100%;height:100%}
+.nd{cursor:pointer}
+.nd text{font-family:var(--font-body);fill:var(--fg)}
+.nd .root-t{font-family:var(--font-display);font-weight:600;fill:#fff}
+.nd.done text{fill:var(--muted);text-decoration:line-through}
+.nd .meta{font-size:11px;fill:var(--muted)}
+.nd.sel rect.box{stroke:var(--fg)!important;stroke-width:2.5!important;stroke-opacity:1!important}
+.tgl circle{fill:var(--surface);stroke-width:1.5}
+.tgl text{font-size:11px;font-weight:600;text-anchor:middle}
+.maptools{position:absolute;top:12px;right:max(12px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:6px}
+.maptools button{width:40px;height:40px;border-radius:12px;background:var(--surface);border:1px solid var(--line);display:grid;place-items:center;box-shadow:var(--shadow)}
+.maptools svg{width:18px;height:18px}
+.hint{position:absolute;left:50%;top:14px;transform:translateX(-50%);font-size:13px;color:var(--muted);background:var(--surface);border:1px solid var(--line);padding:6px 12px;border-radius:999px;white-space:nowrap;pointer-events:none}
+.actions{position:absolute;left:max(12px,env(safe-area-inset-left,0px));right:max(12px,env(safe-area-inset-right,0px));bottom:12px;display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:6px;box-shadow:var(--shadow)}
+.actions::-webkit-scrollbar{display:none}
+.actions button{flex:none;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 10px;border-radius:10px;font-size:11.5px;font-weight:500;min-width:64px}
+.actions button:hover{background:var(--surface-2)}
+.actions button svg{width:20px;height:20px}
+.actions .danger{color:var(--danger)}
+
+/* Tabs + FAB */
+.tabs{display:flex;border-top:1px solid var(--line);background:var(--surface);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.tabs button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 0 9px;font-size:12px;font-weight:500;color:var(--muted);position:relative}
+.tabs button svg{width:22px;height:22px}
+.tabs button[aria-current="true"]{color:var(--accent)}
+.badge{position:absolute;top:4px;left:calc(50% + 6px);min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--danger);color:#fff;font-size:11px;line-height:18px;font-variant-numeric:tabular-nums}
+.fab{position:fixed;right:max(18px,calc(env(safe-area-inset-right,0px) + 12px));bottom:calc(76px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:18px;background:var(--accent);color:var(--accent-fg);display:grid;place-items:center;box-shadow:var(--shadow);z-index:5}
+.fab svg{width:26px;height:26px}
+
+/* Sheet */
+.sheet{position:fixed;inset:0;z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.scrim{position:absolute;inset:0;background:rgba(10,20,15,.38)}
+.panel{position:relative;width:100%;max-width:560px;background:var(--surface);border-radius:20px 20px 0 0;padding:10px max(16px,env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:10px;box-shadow:var(--shadow);animation:up .18s ease-out}
+@keyframes up{from{transform:translateY(30px);opacity:.4}}
+@media (prefers-reduced-motion:reduce){.panel{animation:none}.fcard{transition:none}}
+.grip{width:40px;height:4px;border-radius:2px;background:var(--line);margin:0 auto 2px}
+.panel h3{margin:0;font-family:var(--font-display);font-weight:500;font-size:15px}
+.panel .crumb{font-size:12px;color:var(--muted);margin-top:-6px}
+.panel textarea{width:100%;border:1px solid var(--line);background:var(--bg);border-radius:12px;padding:10px 12px;resize:none;font-size:16px}
+.panel textarea:focus{outline:2px solid var(--accent);border-color:transparent}
+#fNote{font-size:14px}
+.prow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.prow label{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:4px 4px 4px 10px}
+.prow input[type=date]{border:0;background:transparent;padding:5px;font-size:14px}
+.pill{padding:8px 12px;border-radius:10px;font-size:13px;font-weight:500;border:1px solid var(--line)}
+.pill[aria-pressed="true"]{background:color-mix(in srgb,var(--warn) 22%,transparent);border-color:var(--warn)}
+.spacer{flex:1}
+
+.toast{position:fixed;left:50%;bottom:calc(140px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 14px;border-radius:12px;display:flex;gap:14px;align-items:center;z-index:30;font-size:14px;box-shadow:var(--shadow);max-width:calc(100% - 32px)}
+.toast button{color:var(--bg);font-weight:700;text-decoration:underline}
+.menu-list{display:flex;flex-direction:column;gap:8px}
+.menu-list .btn{text-align:left;display:flex;flex-direction:column;gap:2px;padding:12px 14px}
+.menu-list .btn small{font-weight:400;color:var(--muted);font-size:12.5px}
+.nudge{font-size:13px;color:var(--muted);text-align:left;text-decoration:underline;padding:0}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-child" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="6" cy="6" r="2.5"/><path d="M6 8.5v4a4 4 0 004 4h4"/><path d="M17 13.5v6M14 16.5h6"/></g></symbol>
+  <symbol id="i-sib" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="4" width="11" height="6" rx="2"/><path d="M9.5 14v6M6.5 17h6"/></g></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></g></symbol>
+  <symbol id="i-fold" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4l4 4 4-4M8 20l4-4 4 4"/></g></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-fit" viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+  <symbol id="i-caret" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-folders" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2"/></g></symbol>
+  <symbol id="i-map" viewBox="0 0 30 30"><g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="15" cy="15" r="4.5" fill="currentColor"/><path d="M19 13C23 9 24 7 27 6M19 17c4 4 5 6 8 7M11 13C7 9 6 7 3 6M11 17c-4 4-5 6-8 7"/></g></symbol>
+</svg>
+
+<header class="top">
+  <button class="iconbtn" id="back" aria-label="Назад" hidden><svg><use href="#i-back"/></svg></button>
+  <div class="ttl"><span class="eyebrow" id="eyebrow">Чистая голова</span><h1 id="title">Папки</h1></div>
+  <div class="seg" id="seg" hidden>
+    <button data-mode="map" aria-pressed="true">Карта</button>
+    <button data-mode="list" aria-pressed="false">Список</button>
+  </div>
+  <span class="sync" id="sync" hidden></span>
+  <button class="iconbtn" id="menuBtn" aria-label="Резервная копия"><svg viewBox="0 0 24 24"><g fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></g></svg></button>
+</header>
+
+<main>
+  <div id="page"></div>
+  <div id="map" hidden>
+    <svg id="svg"><g id="cam"></g></svg>
+    <div class="hint" id="hint" hidden>Нажми на центр → «Ветка»</div>
+    <div class="maptools">
+      <button id="zIn" aria-label="Приблизить"><svg><use href="#i-plus"/></svg></button>
+      <button id="zOut" aria-label="Отдалить"><svg><use href="#i-minus"/></svg></button>
+      <button id="zFit" aria-label="Показать всю карту"><svg><use href="#i-fit"/></svg></button>
+    </div>
+    <div class="actions" id="actions" hidden></div>
+  </div>
+</main>
+
+<nav class="tabs">
+  <button data-tab="home" aria-current="true"><svg><use href="#i-folders"/></svg>Папки</button>
+  <button data-tab="today" aria-current="false"><svg><use href="#i-sun"/></svg>Сегодня<span class="badge" id="badge" hidden></span></button>
+</nav>
+<button class="fab" id="fab" aria-label="Быстро записать мысль"><svg><use href="#i-plus"/></svg></button>
+
+<div class="sheet" id="sheet" hidden>
+  <div class="scrim" id="scrim"></div>
+  <form class="panel" id="form" autocomplete="off">
+    <div class="grip"></div>
+    <h3 id="sTitle">Новая задача</h3>
+    <div class="crumb" id="sCrumb"></div>
+    <div class="chips" id="sFolders"></div>
+    <textarea id="fText" rows="2" placeholder="Что сделать или о чём подумать"></textarea>
+    <textarea id="fNote" rows="2" placeholder="Заметка, ссылка, детали (необязательно)"></textarea>
+    <div class="prow">
+      <label for="fDue">Срок <input type="date" id="fDue"></label>
+      <button type="button" class="pill" id="fToday" aria-pressed="false">На сегодня</button>
+    </div>
+    <div class="prow">
+      <button type="button" class="btn danger" id="fDel">Удалить</button>
+      <span class="spacer"></span>
+      <button type="button" class="btn" id="fMore">Ещё одну</button>
+      <button type="submit" class="btn primary" id="fSave">Сохранить</button>
+    </div>
+  </form>
+</div>
+<div class="sheet" id="menu" hidden>
+  <div class="scrim" data-closemenu></div>
+  <div class="panel">
+    <div class="grip"></div>
+    <h3>Резервная копия</h3>
+    <div class="crumb" id="backupInfo"></div>
+    <div class="menu-list">
+      <button class="btn" id="exportBtn">Сохранить копию<small>Файл со всеми задачами: отправь себе в Telegram или сохрани в «Файлы»</small></button>
+      <button class="btn" id="importBtn">Загрузить копию<small>Добавит задачи из файла; совпадающие обновит</small></button>
+      <input type="file" id="importFile" accept=".json,application/json" hidden>
+      <button class="btn" data-closemenu>Закрыть</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(() => {
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const ico = (id, cls='') => `<svg class="${cls}"><use href="#i-${id}"/></svg>`;
+
+const FOLDERS = [
+  {id:'fb',      name:'Facebook',               color:'var(--f-fb)'},
+  {id:'traffic', name:'Новый источник трафика', color:'var(--f-tr)'},
+  {id:'seo',     name:'SEO',                    color:'var(--f-seo)'},
+  {id:'yt',      name:'YouTube',                color:'var(--f-yt)'},
+  {id:'life',    name:'Быт',                    color:'var(--f-life)'},
+  {id:'ideas',   name:'Другие идеи',            color:'var(--f-ideas)'},
+];
+const FM = Object.fromEntries(FOLDERS.map(f => [f.id, f]));
+const BR = ['--b1','--b2','--b3','--b4','--b5','--b6','--b7','--b8'].map(v => `var(${v})`);
+
+/* ---------- dates ---------- */
+const z = n => String(n).padStart(2,'0');
+const ymd = d => d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate());
+const todayStr = () => ymd(new Date());
+const dayDiff = s => Math.round((new Date(s+'T00:00') - new Date(todayStr()+'T00:00'))/864e5);
+function fmtDue(s){
+  if(!s) return '';
+  const d = dayDiff(s);
+  if(d===0) return 'сегодня'; if(d===1) return 'завтра'; if(d===-1) return 'вчера';
+  return new Date(s+'T00:00').toLocaleDateString('ru-RU',{day:'numeric',month:'short'});
+}
+const isLate = n => !n.done && n.due && n.due < todayStr();
+const isToday = n => !n.done && (n.today || (n.due && n.due <= todayStr()));
+
+/* ---------- store ---------- */
+let nodes = new Map();
+let col = null;
+const LS = 'cg2-nodes', LS_SYNCED = 'cg2-synced';
+const lsGet = k => { try { return localStorage.getItem(k); } catch { return null; } };
+const lsSet = (k,v) => { try { localStorage.setItem(k,v); } catch {} };
+try { JSON.parse(lsGet(LS) || '[]').forEach(n => nodes.set(n.id, n)); } catch {}
+const saveLocal = () => lsSet(LS, JSON.stringify([...nodes.values()]));
+
+const queues = new Map();
+function enqueue(id, fn){
+  const p = (queues.get(id) || Promise.resolve()).then(fn).catch(e => {
+    console.warn(e);
+    if(e && e.code === 'quota_exceeded') toast('Хранилище заполнено — удалите старые выполненные задачи');
+    else if(e && e.code === 'invalid_argument') toast('Не удалось сохранить: нет прав на запись');
+  });
+  queues.set(id, p);
+}
+const bodyOf = n => { const b = {...n}; delete b.id; return b; };
+function put(n, quiet){
+  n.ts = Date.now();
+  nodes.set(n.id, n); saveLocal();
+  if(col) enqueue(n.id, () => col.doc(n.id).set(bodyOf(n)));
+  if(!quiet) render();
+}
+function removeIds(ids){
+  ids.forEach(id => { nodes.delete(id); if(col) enqueue(id, () => col.doc(id).delete()); });
+  saveLocal(); render();
+}
+const newId = () => 'n' + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+
+function setSync(state){
+  const el = $('#sync');
+  el.className = 'sync ' + state;
+  el.title = {ok:'Синхронизировано между устройствами', local:'Только на этом устройстве', slow:'Нет связи с хранилищем — показана сохранённая копия', err:'Ошибка синхронизации — данные сохранены на устройстве'}[state] || '';
+}
+setSync('local');
+
+async function initDb(){
+  if(!window.claude || !window.claude.use) return;
+  let db = null;
+  try { db = await window.claude.use('db'); } catch {}
+  if(!db) return;
+  col = db.collection('nodes');
+  let timer = setTimeout(() => setSync('slow'), 10000);
+  let first = true;
+  col.onSnapshot(snap => {
+    if(snap.metadata.fromCache && first && snap.empty && nodes.size) return; // keep local copy until store answers
+    if(!snap.metadata.fromCache){
+      clearTimeout(timer); setSync('ok');
+      if(first){
+        first = false;
+        if(snap.empty && nodes.size && !lsGet(LS_SYNCED)){
+          lsSet(LS_SYNCED,'1');
+          [...nodes.values()].forEach(n => enqueue(n.id, () => col.doc(n.id).set(bodyOf(n))));
+          return;
+        }
+        lsSet(LS_SYNCED,'1');
+      }
+    }
+    const m = new Map();
+    snap.docs.forEach(d => m.set(d.id, {...d.data(), id:d.id}));
+    nodes = m; saveLocal(); render();
+  }, () => { clearTimeout(timer); setSync('err'); });
+}
+
+/* ---------- tree helpers ---------- */
+function index(){
+  const m = new Map();
+  for(const n of nodes.values()){
+    const k = n.f + '|' + (n.p || '');
+    if(!m.has(k)) m.set(k, []);
+    m.get(k).push(n);
+  }
+  for(const a of m.values()) a.sort((a,b) => (a.o||0) - (b.o||0));
+  return m;
+}
+function descendants(id){
+  const out = [], stack = [id];
+  while(stack.length){
+    const cur = stack.pop();
+    for(const n of nodes.values()) if(n.p === cur){ out.push(n.id); stack.push(n.id); }
+  }
+  return out;
+}
+function crumb(n){
+  const parts = []; let p = n.p ? nodes.get(n.p) : null; let guard = 0;
+  while(p && guard++ < 20){ parts.unshift(p.t); p = p.p ? nodes.get(p.p) : null; }
+  return parts;
+}
+function folderStats(f){
+  let open=0, done=0, today=0;
+  for(const n of nodes.values()) if(n.f===f){ n.done ? done++ : open++; if(isToday(n)) today++; }
+  return {open, done, today, total: open+done};
+}
+
+/* ---------- routing ---------- */
+let route = {view:'home'};
+function parse(h){
+  h = (h||'').replace(/^#/,'');
+  if(h === 'today') return {view:'today'};
+  const m = h.match(/^f-([a-z]+)(-list)?$/);
+  if(m && FM[m[1]]) return {view:'folder', f:m[1], mode: m[2] ? 'list' : 'map'};
+  return {view:'home'};
+}
+const hashOf = r => r.view==='today' ? 'today' : r.view==='folder' ? 'f-'+r.f+(r.mode==='list'?'-list':'') : 'home';
+function go(r){
+  route = r; selected = null; render();
+  try { if(location.hash !== '#'+hashOf(r)) location.hash = hashOf(r); } catch {}
+}
+addEventListener('hashchange', () => {
+  const r = parse(location.hash);
+  if(hashOf(r) !== hashOf(route)){ route = r; selected = null; render(); }
+});
+
+/* ---------- render ---------- */
+const page = $('#page'), mapEl = $('#map');
+function render(){
+  const r = route;
+  $('#back').hidden = r.view !== 'folder';
+  $('#seg').hidden = r.view !== 'folder';
+  document.querySelectorAll('.tabs button').forEach(b => b.setAttribute('aria-current', String(b.dataset.tab === r.view || (b.dataset.tab==='home' && r.view==='folder'))));
+  const tc = [...nodes.values()].filter(isToday).length;
+  $('#badge').hidden = !tc; $('#badge').textContent = tc;
+
+  if(r.view === 'folder'){
+    $('#eyebrow').textContent = 'Папка';
+    $('#title').textContent = FM[r.f].name;
+    document.querySelectorAll('#seg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === r.mode)));
+  } else if(r.view === 'today'){
+    $('#eyebrow').textContent = new Date().toLocaleDateString('ru-RU',{weekday:'long', day:'numeric', month:'long'});
+    $('#title').textContent = 'Сегодня';
+  } else {
+    $('#eyebrow').textContent = 'Чистая голова';
+    $('#title').textContent = 'Папки';
+  }
+
+  const isMap = r.view === 'folder' && r.mode === 'map';
+  mapEl.hidden = !isMap; page.hidden = isMap;
+  $('#fab').hidden = isMap && !!selected;
+  if(isMap) renderMap();
+  else if(r.view === 'folder') renderList();
+  else if(r.view === 'today') renderToday();
+  else renderHome();
+}
+
+/* ---------- home ---------- */
+let captureFolder = lsGet('cg2-capf') || 'ideas';
+function folderChips(active, attr){
+  return FOLDERS.map(f => `<button type="button" class="chip" style="--c:${f.color}" data-${attr}="${f.id}" aria-pressed="${f.id===active}"><span class="dot"></span>${esc(f.name)}</button>`).join('');
+}
+function renderHome(){
+  const all = [...nodes.values()];
+  const today = all.filter(isToday).length, late = all.filter(isLate).length;
+  const draft = $('#capText') ? $('#capText').value : '';
+  page.innerHTML = `<div class="wrap">
+    <form class="capture" id="capForm">
+      <div class="capture-row">
+        <input id="capText" placeholder="Что в голове? Запиши и забудь" enterkeyhint="done">
+        <button class="btn primary" aria-label="Записать">${ico('plus').replace('<svg','<svg style="width:20px;height:20px;display:block"')}</button>
+      </div>
+      <div class="chips">${folderChips(captureFolder,'capf')}</div>
+    </form>
+    <button class="todaybar" data-tab="today"><b>${today}</b><span>${today ? 'на сегодня' : 'Задач на сегодня нет. Отметь важные «На сегодня»'}${late ? ` · ${late} просрочено` : ''}</span>${ico('caret').replace('<svg','<svg style="width:18px;height:18px"')}</button>
+    ${nodes.size >= 5 && (backupAge() === null || backupAge() >= 14) ? `<button class="nudge" id="nudge">${backupAge() === null ? 'Копия задач ещё не сохранялась' : `Копия задач сохранялась ${backupAge()} дн. назад`} — сохранить</button>` : ''}
+    <h2 class="section-h">Направления</h2>
+    <div class="grid">${FOLDERS.map(f => {
+      const s = folderStats(f.id);
+      const pct = s.total ? Math.round(s.done/s.total*100) : 0;
+      return `<button class="fcard" style="--c:${f.color}" data-open="${f.id}">
+        <svg class="glyph" style="color:${f.color}"><use href="#i-map"/></svg>
+        <h2>${esc(f.name)}</h2>
+        <div class="stats">${s.total ? `${s.open} открыто${s.today ? ` · ${s.today} сегодня` : ''}` : 'Пусто — начни карту'}</div>
+        <div class="bar"><i style="width:${pct}%"></i></div>
+      </button>`;}).join('')}</div>
+  </div>`;
+  $('#capText').value = draft;
+}
+
+/* ---------- list ---------- */
+let showDone = lsGet('cg2-showdone') !== '0';
+const openRows = new Set();
+function taskRow(n, depth, hasKids, collapsed){
+  const f = FM[n.f];
+  const tags = [];
+  if(n.due) tags.push(`<span class="tag ${isLate(n)?'late':''}">${fmtDue(n.due)}</span>`);
+  if(n.today && !n.done) tags.push(`<span class="tag hot">сегодня</span>`);
+  if(n.note) tags.push(`<span class="tag">заметка</span>`);
+  return `<div class="task ${n.done?'done':''}" style="--ind:${depth};--c:${f.color}">
+    <button class="mini caret ${hasKids?'':'none'}" data-toggle="${n.id}" aria-expanded="${!collapsed}" aria-label="Свернуть">${ico('caret')}</button>
+    <button class="chk" data-done="${n.id}" aria-label="Выполнено">${ico('check')}</button>
+    <button class="txt" data-edit="${n.id}"><span class="t">${esc(n.t)}</span>${tags.length?`<div class="meta">${tags.join('')}</div>`:''}</button>
+    <button class="mini" data-addchild="${n.id}" aria-label="Добавить подзадачу">${ico('plus')}</button>
+  </div>`;
+}
+function renderList(){
+  const f = route.f, idx = index();
+  let html = '';
+  (function rec(pid, depth){
+    for(const n of (idx.get(f+'|'+(pid||'')) || [])){
+      if(n.done && !showDone) continue;
+      const kids = idx.get(f+'|'+n.id) || [];
+      html += taskRow(n, depth, kids.length, n.c);
+      if(!n.c) rec(n.id, depth+1);
+    }
+  })(null, 0);
+  const draft = $('#listText') ? $('#listText').value : '';
+  page.innerHTML = `<div class="wrap">
+    <form class="capture" id="listForm"><div class="capture-row">
+      <input id="listText" placeholder="Новая ветка в «${esc(FM[f].name)}»" enterkeyhint="done">
+      <button class="btn primary" aria-label="Добавить">${ico('plus').replace('<svg','<svg style="width:20px;height:20px;display:block"')}</button>
+    </div></form>
+    <div class="listtools"><button class="toggle" id="showDone">${showDone?'Скрыть':'Показать'} выполненные</button></div>
+    <div>${html || `<div class="empty"><b>Здесь пока пусто</b>Добавь первую ветку сверху или открой «Карту»</div>`}</div>
+  </div>`;
+  $('#listText').value = draft;
+}
+
+/* ---------- today ---------- */
+function renderToday(){
+  const all = [...nodes.values()];
+  const late = all.filter(isLate).sort((a,b) => a.due.localeCompare(b.due));
+  const now = all.filter(n => isToday(n) && !isLate(n)).sort((a,b) => (a.f).localeCompare(b.f));
+  const soon = all.filter(n => !n.done && !isToday(n) && n.due && dayDiff(n.due) <= 7).sort((a,b) => a.due.localeCompare(b.due));
+  const doneToday = all.filter(n => n.done && n.doneAt && ymd(new Date(n.doneAt)) === todayStr());
+  const row = n => {
+    const f = FM[n.f]; const c = crumb(n);
+    return `<div class="task ${n.done?'done':''}" style="--c:${f.color}">
+      <button class="chk" data-done="${n.id}" aria-label="Выполнено">${ico('check')}</button>
+      <button class="txt" data-edit="${n.id}"><span class="t">${esc(n.t)}</span>
+        <div class="meta"><span class="tag f">${esc(f.name)}</span>${c.length?`<span>${esc(c.join(' › '))}</span>`:''}${n.due?`<span class="tag ${isLate(n)?'late':''}">${fmtDue(n.due)}</span>`:''}</div></button>
+    </div>`;
+  };
+  const sec = (title, arr) => arr.length ? `<section><h2 class="section-h">${title} · ${arr.length}</h2>${arr.map(row).join('')}</section>` : '';
+  const body = sec('Просрочено', late) + sec('На сегодня', now) + sec('Ближайшие 7 дней', soon) + sec('Сделано сегодня', doneToday);
+  page.innerHTML = `<div class="wrap">${body || `<div class="empty"><b>Голова чистая</b>Отметь задачу «На сегодня» или поставь срок — она появится здесь</div>`}</div>`;
+}
+
+/* ---------- mind map ---------- */
+const svg = $('#svg'), camG = $('#cam');
+const cams = {}; let selected = null;
+const measure = document.createElement('canvas').getContext('2d');
+const FONT = d => d===0 ? '600 16px Unbounded, Onest, sans-serif' : d===1 ? '600 15px Onest, sans-serif' : '400 14px Onest, sans-serif';
+const LH = d => d===0 ? 21 : 19;
+function wrapText(text, font, max){
+  measure.font = font;
+  const words = String(text||'').split(/\s+/).filter(Boolean);
+  const lines = []; let cur = '';
+  for(const w of words){
+    const t = cur ? cur+' '+w : w;
+    if(measure.measureText(t).width > max && cur){ lines.push(cur); cur = w; } else cur = t;
+  }
+  if(cur) lines.push(cur);
+  if(!lines.length) lines.push('…');
+  if(lines.length > 5){ lines.length = 5; lines[4] += '…'; }
+  const w = Math.max(...lines.map(l => measure.measureText(l).width));
+  return {lines, w};
+}
+let layoutCache = null;
+function layout(f){
+  const idx = index();
+  const root = {id:'root', t:FM[f].name, d:0, kids:[], color:FM[f].color};
+  (function rec(node, pid, d){
+    const ks = idx.get(f+'|'+(pid||'')) || [];
+    node.count = ks.length;
+    if(node.n && node.n.c && ks.length){ node.hidden = ks.length; return; }
+    node.kids = ks.map((n,i) => {
+      const c = {id:n.id, t:(n.done?'✓ ':'')+n.t, n, d, kids:[], color: d===1 ? BR[i % BR.length] : node.color};
+      rec(c, n.id, d+1); return c;
+    });
+  })(root, null, 1);
+  const PX = 12, PY = 8;
+  (function meas(n){
+    const max = n.d===0 ? 200 : n.d===1 ? 210 : 190;
+    const r = wrapText(n.t, FONT(n.d), max);
+    n.lines = r.lines;
+    n.meta = n.n ? [n.n.due ? fmtDue(n.n.due) : '', n.n.today && !n.n.done ? 'сегодня' : '', n.n.note ? 'заметка' : ''].filter(Boolean).join(' · ') : '';
+    let mw = 0; if(n.meta){ measure.font = '400 11px Onest, sans-serif'; mw = measure.measureText(n.meta).width; }
+    n.w = Math.ceil(Math.max(r.w, mw, 24)) + PX*2 + (n.d===0 ? 8 : 0);
+    n.h = r.lines.length*LH(n.d) + (n.meta ? 15 : 0) + PY*2 + (n.d===0 ? 6 : 0);
+    n.kids.forEach(meas);
+  })(root);
+  const VG = 12, HG = 36, HG0 = 52;
+  (function sh(n){ n.kids.forEach(sh); n.sh = n.kids.length ? Math.max(n.h, n.kids.reduce((s,k)=>s+k.sh,0) + VG*(n.kids.length-1)) : n.h; })(root);
+  function place(n, ax, cy, dir){
+    n.dir = dir; n.x = dir > 0 ? ax : ax - n.w; n.y = cy - n.h/2; n.cy = cy;
+    if(n.kids.length) group(n.kids, dir > 0 ? n.x+n.w+HG : n.x-HG, cy, dir);
+  }
+  function group(kids, ax, cy, dir){
+    const total = kids.reduce((s,k)=>s+k.sh,0) + VG*(kids.length-1);
+    let y = cy - total/2;
+    for(const k of kids){ place(k, ax, y + k.sh/2, dir); y += k.sh + VG; }
+  }
+  const R = [], L = []; let rs = 0, ls = 0;
+  root.kids.forEach(k => { if(rs <= ls){ R.push(k); rs += k.sh+VG; } else { L.push(k); ls += k.sh+VG; } });
+  root.x = -root.w/2; root.y = -root.h/2; root.cy = 0; root.dir = 0;
+  group(R, root.w/2 + HG0, 0, 1); group(L, -root.w/2 - HG0, 0, -1);
+  const all = []; (function walk(n){ all.push(n); n.kids.forEach(walk); })(root);
+  return {root, all};
+}
+function renderMap(){
+  const f = route.f;
+  const {root, all} = layoutCache = layout(f);
+  let edges = '', boxes = '';
+  for(const n of all){
+    for(const c of n.kids){
+      const dir = c.dir;
+      const sx = n.d===0 ? (dir>0 ? n.x+n.w-6 : n.x+6) : (dir>0 ? n.x+n.w : n.x);
+      const sy = n.cy, ex = dir>0 ? c.x : c.x+c.w, ey = c.cy, dx = ex-sx;
+      const sw = c.d===1 ? 5 : c.d===2 ? 3 : 2;
+      edges += `<path d="M${sx},${sy} C${sx+dx*.55},${sy} ${ex-dx*.55},${ey} ${ex},${ey}" fill="none" stroke-linecap="round" style="stroke:${c.color};stroke-width:${sw};opacity:${c.n&&c.n.done?.45:.9}"/>`;
+    }
+  }
+  for(const n of all){
+    const lh = LH(n.d), cls = ['nd']; if(n.n && n.n.done) cls.push('done'); if(selected === n.id) cls.push('sel');
+    let fill, stroke, sop = 1;
+    if(n.d === 0){ fill = n.color; stroke = n.color; }
+    else if(n.d === 1){ fill = `color-mix(in srgb, ${n.color} 15%, var(--node))`; stroke = n.color; }
+    else { fill = 'var(--node)'; stroke = n.color; sop = .45; }
+    const tx = n.d===0 ? 16 : 12, ty = 8 + (n.d===0?3:0) + lh*0.78;
+    const tspans = n.lines.map((l,i) => `<tspan x="${tx}" y="${ty + i*lh}">${esc(l)}</tspan>`).join('');
+    const today = n.n && n.n.today && !n.n.done ? `<circle cx="${n.w-2}" cy="2" r="5" style="fill:var(--warn);stroke:var(--bg);stroke-width:2"/>` : '';
+    boxes += `<g class="${cls.join(' ')}" data-id="${n.id}" transform="translate(${n.x},${n.y})">
+      <rect class="box" width="${n.w}" height="${n.h}" rx="${n.d===0?n.h/2>22?14:n.h/2:10}" style="fill:${fill};stroke:${stroke};stroke-opacity:${sop};stroke-width:${n.d===0?0:1.5}"/>
+      <text class="${n.d===0?'root-t':''}" style="font:${FONT(n.d)}">${tspans}</text>
+      ${n.meta ? `<text class="meta" x="${tx}" y="${8 + n.lines.length*lh + 11}">${esc(n.meta)}</text>` : ''}
+      ${today}
+    </g>`;
+    if(n.hidden){
+      const cx = n.dir > 0 ? n.x+n.w+14 : n.x-14;
+      boxes += `<g class="tgl" data-toggle="${n.id}" style="cursor:pointer"><circle cx="${cx}" cy="${n.cy}" r="11" style="stroke:${n.color}"/><text x="${cx}" y="${n.cy+4}" style="fill:${n.color}">${n.hidden}</text></g>`;
+    }
+  }
+  camG.innerHTML = edges + boxes;
+  $('#hint').hidden = root.kids.length > 0 || !!selected;
+  if(!cams[f]) fit(); else applyCam();
+  renderActions();
+}
+function cam(){ return cams[route.f] || (cams[route.f] = {x:0,y:0,k:1}); }
+function applyCam(){
+  const c = cam();
+  camG.setAttribute('transform', `translate(${c.x},${c.y}) scale(${c.k})`);
+  const s = 24*c.k; mapEl.style.backgroundSize = `${s}px ${s}px`; mapEl.style.backgroundPosition = `${c.x}px ${c.y}px`;
+}
+function fit(){
+  if(!layoutCache) return;
+  const r = mapEl.getBoundingClientRect(); if(!r.width) { cams[route.f] = {x:0,y:0,k:1}; return; }
+  let x0=Infinity,y0=Infinity,x1=-Infinity,y1=-Infinity;
+  for(const n of layoutCache.all){ x0=Math.min(x0,n.x-20); y0=Math.min(y0,n.y); x1=Math.max(x1,n.x+n.w+20); y1=Math.max(y1,n.y+n.h); }
+  const pad = 40, bottom = selected ? 90 : 20;
+  const k = Math.max(.25, Math.min(1.25, (r.width-pad*2)/(x1-x0), (r.height-pad*2-bottom)/(y1-y0)));
+  cams[route.f] = {k, x: r.width/2 - (x0+x1)/2*k, y: (r.height-bottom)/2 - (y0+y1)/2*k};
+  applyCam();
+}
+function zoomAt(px, py, k2){
+  const c = cam(); k2 = Math.max(.2, Math.min(2.5, k2));
+  const wx = (px - c.x)/c.k, wy = (py - c.y)/c.k;
+  c.k = k2; c.x = px - wx*k2; c.y = py - wy*k2; applyCam();
+}
+$('#zIn').onclick = () => { const r = mapEl.getBoundingClientRect(); zoomAt(r.width/2, r.height/2, cam().k*1.25); };
+$('#zOut').onclick = () => { const r = mapEl.getBoundingClientRect(); zoomAt(r.width/2, r.height/2, cam().k/1.25); };
+$('#zFit').onclick = fit;
+mapEl.addEventListener('wheel', e => {
+  e.preventDefault(); const r = mapEl.getBoundingClientRect();
+  if(e.ctrlKey || Math.abs(e.deltaY) > Math.abs(e.deltaX)*2 && !e.shiftKey && e.deltaMode===0 && Math.abs(e.deltaY) >= 40) zoomAt(e.clientX-r.left, e.clientY-r.top, cam().k * Math.exp(-e.deltaY*0.0018*(e.ctrlKey?4:1)));
+  else { const c = cam(); c.x -= e.deltaX; c.y -= e.deltaY; applyCam(); }
+}, {passive:false});
+
+const pts = new Map(); let gest = null, lastTap = {id:null, t:0};
+const dist = (a,b) => Math.hypot(a.x-b.x, a.y-b.y);
+svg.addEventListener('pointerdown', e => {
+  try { svg.setPointerCapture(e.pointerId); } catch {}
+  pts.set(e.pointerId, {x:e.clientX, y:e.clientY});
+  if(pts.size === 1) gest = {type:'tap', sx:e.clientX, sy:e.clientY, c:{...cam()}, target:e.target};
+  else if(pts.size === 2){ const [a,b] = [...pts.values()]; gest = {type:'pinch', d0:dist(a,b), m:{x:(a.x+b.x)/2, y:(a.y+b.y)/2}, c:{...cam()}}; }
+});
+svg.addEventListener('pointermove', e => {
+  if(!pts.has(e.pointerId) || !gest) return;
+  pts.set(e.pointerId, {x:e.clientX, y:e.clientY});
+  const c = cam();
+  if(gest.type === 'tap' && Math.hypot(e.clientX-gest.sx, e.clientY-gest.sy) > 7){ gest.type = 'pan'; mapEl.style.cursor = 'grabbing'; }
+  if(gest.type === 'pan'){ c.x = gest.c.x + e.clientX - gest.sx; c.y = gest.c.y + e.clientY - gest.sy; applyCam(); }
+  else if(gest.type === 'pinch' && pts.size >= 2){
+    const [a,b] = [...pts.values()]; const r = mapEl.getBoundingClientRect();
+    const k2 = Math.max(.2, Math.min(2.5, gest.c.k * dist(a,b)/gest.d0));
+    const mx = gest.m.x - r.left, my = gest.m.y - r.top;
+    const wx = (mx - gest.c.x)/gest.c.k, wy = (my - gest.c.y)/gest.c.k;
+    const nm = {x:(a.x+b.x)/2 - r.left, y:(a.y+b.y)/2 - r.top};
+    c.k = k2; c.x = nm.x - wx*k2; c.y = nm.y - wy*k2; applyCam();
+  }
+});
+function endPtr(e){
+  if(!pts.has(e.pointerId)) return;
+  pts.delete(e.pointerId); mapEl.style.cursor = '';
+  if(!gest) return;
+  if(gest.type === 'tap' && pts.size === 0 && e.type === 'pointerup') handleTap(gest.target);
+  if(pts.size === 1){ const p = [...pts.values()][0]; gest = {type:'pan', sx:p.x, sy:p.y, c:{...cam()}}; }
+  else if(pts.size === 0) gest = null;
+}
+svg.addEventListener('pointerup', endPtr); svg.addEventListener('pointercancel', endPtr);
+
+function handleTap(target){
+  const t = target.closest && target.closest('[data-toggle]');
+  if(t){ toggleCollapse(t.dataset.toggle); return; }
+  const g = target.closest && target.closest('[data-id]');
+  if(!g){ if(selected){ selected = null; render(); } return; }
+  const id = g.dataset.id, now = Date.now();
+  if(id === lastTap.id && now - lastTap.t < 380 && id === selected){ lastTap = {id:null,t:0}; if(id === 'root') openNew(route.f, null); else openEdit(id); return; }
+  lastTap = {id, t:now};
+  selected = id; render();
+}
+function toggleCollapse(id){ const n = nodes.get(id); if(!n) return; put({...n, c: !n.c}); }
+
+function renderActions(){
+  const bar = $('#actions');
+  if(!selected || (selected !== 'root' && !nodes.has(selected))){ bar.hidden = true; $('#fab').hidden = false; return; }
+  bar.hidden = false; $('#fab').hidden = true;
+  const b = (act, icon, label, cls='') => `<button data-act="${act}" class="${cls}">${ico(icon)}${label}</button>`;
+  if(selected === 'root'){ bar.innerHTML = b('child','child','Ветка'); return; }
+  const n = nodes.get(selected);
+  const hasKids = [...nodes.values()].some(x => x.p === n.id);
+  bar.innerHTML = b('child','child','Подзадача') + b('sib','sib','Рядом') + b('done','check', n.done ? 'Вернуть' : 'Готово')
+    + b('today','sun', n.today ? 'Не сегодня' : 'Сегодня') + b('edit','edit','Изменить')
+    + (hasKids ? b('fold','fold', n.c ? 'Раскрыть' : 'Свернуть') : '') + b('del','trash','Удалить','danger');
+}
+$('#actions').addEventListener('click', e => {
+  const btn = e.target.closest('[data-act]'); if(!btn) return;
+  const act = btn.dataset.act, f = route.f;
+  if(selected === 'root'){ openNew(f, null); return; }
+  const n = nodes.get(selected); if(!n) return;
+  if(act === 'child') openNew(f, n.id);
+  else if(act === 'sib') openNew(f, n.p || null, n.o);
+  else if(act === 'done') toggleDone(n.id);
+  else if(act === 'today') put({...n, today: !n.today});
+  else if(act === 'edit') openEdit(n.id);
+  else if(act === 'fold') toggleCollapse(n.id);
+  else if(act === 'del') removeWithUndo(n.id);
+});
+
+/* ---------- actions ---------- */
+function toggleDone(id){
+  const n = nodes.get(id); if(!n) return;
+  const done = !n.done;
+  put({...n, done, doneAt: done ? Date.now() : null});
+  if(done) toast('Готово ✓');
+}
+function removeWithUndo(id){
+  const ids = [id, ...descendants(id)];
+  const backup = ids.map(i => ({...nodes.get(i)}));
+  if(selected && ids.includes(selected)) selected = null;
+  removeIds(ids);
+  toast(ids.length > 1 ? `Удалено с подзадачами: ${ids.length}` : 'Удалено', 'Вернуть', () => { backup.forEach(n => put(n, true)); render(); });
+}
+function addNode(f, p, text, extra = {}, afterO){
+  const t = text.trim(); if(!t) return null;
+  let o = Date.now();
+  if(afterO != null){
+    const sibs = (index().get(f+'|'+(p||'')) || []).map(s => s.o).filter(x => x > afterO).sort((a,b)=>a-b);
+    o = sibs.length ? (afterO + sibs[0]) / 2 : afterO + 1000;
+  }
+  const n = {id:newId(), f, p:p||null, t, note:'', due:'', today:false, done:false, c:false, o, created:Date.now(), ...extra};
+  if(p){ const par = nodes.get(p); if(par && par.c) put({...par, c:false}, true); }
+  put(n);
+  return n;
+}
+
+/* ---------- sheet ---------- */
+let sheet = null;
+const sheetEl = $('#sheet');
+function openSheet(s){
+  sheet = s;
+  const n = s.id ? nodes.get(s.id) : null;
+  $('#sTitle').textContent = n ? 'Изменить' : s.p ? 'Новая подзадача' : s.quick ? 'Записать мысль' : 'Новая ветка';
+  const par = s.p ? nodes.get(s.p) : null;
+  $('#sCrumb').textContent = n ? [FM[n.f].name, ...crumb(n)].join(' › ') : s.quick ? '' : [FM[s.f].name, ...(par ? [...crumb(par), par.t] : [])].join(' › ');
+  $('#sCrumb').hidden = !$('#sCrumb').textContent;
+  $('#sFolders').hidden = !s.quick && !n;
+  $('#sFolders').innerHTML = folderChips(s.f, 'sf');
+  $('#fText').value = n ? n.t : '';
+  $('#fNote').value = n ? (n.note || '') : '';
+  $('#fDue').value = n ? (n.due || '') : '';
+  s.today = n ? !!n.today : false;
+  $('#fToday').setAttribute('aria-pressed', String(s.today));
+  $('#fDel').hidden = !n; $('#fMore').hidden = !!n;
+  sheetEl.hidden = false;
+  setTimeout(() => $('#fText').focus(), 60);
+}
+function closeSheet(){ sheetEl.hidden = true; sheet = null; }
+function openNew(f, p, afterO){ openSheet({f, p, afterO}); }
+function openEdit(id){ const n = nodes.get(id); if(n) openSheet({id, f:n.f, p:n.p}); }
+function saveSheet(more){
+  if(!sheet) return;
+  const text = $('#fText').value.trim();
+  const fields = {note: $('#fNote').value.trim(), due: $('#fDue').value, today: sheet.today};
+  if(sheet.id){
+    const n = nodes.get(sheet.id);
+    if(n && text){
+      const upd = {...n, t:text, ...fields};
+      if(sheet.f !== n.f){ // move to another folder with its subtree, to the root
+        upd.f = sheet.f; upd.p = null;
+        descendants(n.id).forEach(d => put({...nodes.get(d), f: sheet.f}, true));
+      }
+      put(upd);
+    }
+    closeSheet(); return;
+  }
+  if(!text){ if(!more) closeSheet(); return; }
+  const n = addNode(sheet.f, sheet.p, text, fields, sheet.afterO);
+  if(sheet.quick){ toast(`Записано в «${FM[sheet.f].name}»`); }
+  if(more){
+    sheet.afterO = n ? n.o : sheet.afterO;
+    $('#fText').value = ''; $('#fNote').value = ''; $('#fDue').value = '';
+    sheet.today = false; $('#fToday').setAttribute('aria-pressed','false');
+    $('#fText').focus();
+  } else {
+    if(route.view === 'folder' && route.mode === 'map' && n && n.f === route.f) { selected = n.id; render(); }
+    closeSheet();
+  }
+}
+$('#form').addEventListener('submit', e => { e.preventDefault(); saveSheet(false); });
+$('#fMore').onclick = () => saveSheet(true);
+$('#fText').addEventListener('keydown', e => { if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); saveSheet(!sheet?.id && !sheet?.quick); } });
+$('#fToday').onclick = () => { sheet.today = !sheet.today; $('#fToday').setAttribute('aria-pressed', String(sheet.today)); };
+$('#fDel').onclick = () => { const id = sheet.id; closeSheet(); removeWithUndo(id); };
+$('#scrim').onclick = closeSheet;
+$('#sFolders').addEventListener('click', e => {
+  const c = e.target.closest('[data-sf]'); if(!c || !sheet) return;
+  sheet.f = c.dataset.sf; if(sheet.quick){ sheet.p = null; }
+  $('#sFolders').querySelectorAll('[data-sf]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.sf === sheet.f)));
+});
+addEventListener('keydown', e => {
+  if(e.key === 'Escape'){ if(!sheetEl.hidden) closeSheet(); else if(selected){ selected = null; render(); } }
+  if(sheetEl.hidden && route.view==='folder' && route.mode==='map' && selected && document.activeElement === document.body){
+    if(e.key === 'Tab'){ e.preventDefault(); openNew(route.f, selected==='root'?null:selected); }
+    else if(e.key === 'Enter' && selected !== 'root'){ e.preventDefault(); const n = nodes.get(selected); if(n) openNew(route.f, n.p||null, n.o); }
+    else if((e.key === 'Delete' || e.key === 'Backspace') && selected !== 'root'){ e.preventDefault(); removeWithUndo(selected); }
+    else if(e.key === ' ' && selected !== 'root'){ e.preventDefault(); toggleDone(selected); }
+  }
+});
+
+/* ---------- global clicks ---------- */
+document.addEventListener('click', e => {
+  const t = e.target;
+  const tab = t.closest('[data-tab]'); if(tab){ go({view: tab.dataset.tab}); return; }
+  const op = t.closest('[data-open]'); if(op){ go({view:'folder', f:op.dataset.open, mode: lsGet('cg2-mode') || 'map'}); return; }
+  const md = t.closest('#seg [data-mode]'); if(md){ lsSet('cg2-mode', md.dataset.mode); go({...route, mode: md.dataset.mode}); return; }
+  const cf = t.closest('[data-capf]'); if(cf){ captureFolder = cf.dataset.capf; lsSet('cg2-capf', captureFolder); document.querySelectorAll('[data-capf]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.capf === captureFolder))); return; }
+  const dn = t.closest('[data-done]'); if(dn){ toggleDone(dn.dataset.done); return; }
+  const tg = t.closest('#page [data-toggle]'); if(tg){ toggleCollapse(tg.dataset.toggle); return; }
+  const ed = t.closest('#page [data-edit]'); if(ed){ openEdit(ed.dataset.edit); return; }
+  const ac = t.closest('[data-addchild]'); if(ac){ openNew(route.f, ac.dataset.addchild); return; }
+  if(t.closest('#nudge')){ openMenu(); return; }
+  if(t.closest('#showDone')){ showDone = !showDone; lsSet('cg2-showdone', showDone ? '1' : '0'); render(); return; }
+});
+document.addEventListener('submit', e => {
+  if(e.target.id === 'capForm'){ e.preventDefault(); const i = $('#capText'); if(addNode(captureFolder, null, i.value)){ i.value = ''; toast(`Записано в «${FM[captureFolder].name}»`); } }
+  if(e.target.id === 'listForm'){ e.preventDefault(); const i = $('#listText'); if(addNode(route.f, null, i.value)){ i.value = ''; setTimeout(() => $('#listText') && $('#listText').focus(), 0); } }
+});
+$('#back').onclick = () => go({view:'home'});
+$('#fab').onclick = () => {
+  const f = route.view === 'folder' ? route.f : captureFolder;
+  if(route.view === 'folder' && route.mode === 'map') openNew(f, null);
+  else openSheet({f, p:null, quick: route.view !== 'folder'});
+};
+
+/* ---------- toast ---------- */
+let toastTimer = null;
+function toast(msg, actionLabel, action){
+  const el = $('#toast');
+  el.innerHTML = `<span>${esc(msg)}</span>` + (actionLabel ? `<button>${esc(actionLabel)}</button>` : '');
+  el.hidden = false;
+  if(actionLabel) el.querySelector('button').onclick = () => { el.hidden = true; action(); };
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => el.hidden = true, actionLabel ? 6000 : 2200);
+}
+
+/* ---------- boot ---------- */
+route = parse(location.hash);
+render();
+if(document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if(route.view === 'folder' && route.mode === 'map'){ const f = route.f; delete cams[f]; } render(); });
+addEventListener('resize', () => { if(route.view === 'folder' && route.mode === 'map') applyCam(); });
+
+/* ---------- backup ---------- */
+const menuEl = $('#menu');
+function backupAge(){ const t = +lsGet('cg2-lastbackup') || 0; return t ? Math.floor((Date.now()-t)/864e5) : null; }
+function openMenu(){
+  const a = backupAge();
+  $('#backupInfo').textContent = `Задач: ${nodes.size}. ` + (a === null ? 'Копию ещё не сохраняли.' : a === 0 ? 'Последняя копия — сегодня.' : `Последняя копия — ${a} дн. назад.`);
+  menuEl.hidden = false;
+}
+$('#menuBtn').onclick = openMenu;
+menuEl.addEventListener('click', e => { if(e.target.closest('[data-closemenu]')) menuEl.hidden = true; });
+$('#exportBtn').onclick = async () => {
+  const name = 'golova-' + todayStr() + '.json';
+  const data = JSON.stringify({app:'chistaya-golova', v:1, at:new Date().toISOString(), nodes:[...nodes.values()]});
+  const file = new File([data], name, {type:'application/json'});
+  const mobile = matchMedia('(pointer: coarse)').matches;
+  try {
+    if(mobile && navigator.canShare && navigator.canShare({files:[file]})) await navigator.share({files:[file], title:name});
+    else {
+      const a = document.createElement('a'); a.href = URL.createObjectURL(file); a.download = name;
+      document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+    }
+    lsSet('cg2-lastbackup', String(Date.now())); menuEl.hidden = true; toast('Копия сохранена'); render();
+  } catch(err) { if(err && err.name !== 'AbortError') toast('Не получилось сохранить файл'); }
+};
+$('#importBtn').onclick = () => $('#importFile').click();
+$('#importFile').onchange = async e => {
+  const f = e.target.files && e.target.files[0]; e.target.value = '';
+  if(!f) return;
+  try {
+    const d = JSON.parse(await f.text());
+    if(!d || !Array.isArray(d.nodes)) throw new Error('bad');
+    let added = 0, updated = 0;
+    for(const n of d.nodes){
+      if(!n || typeof n.id !== 'string' || !FM[n.f] || typeof n.t !== 'string') continue;
+      const cur = nodes.get(n.id);
+      if(!cur){ nodes.set(n.id, n); added++; }
+      else if((n.ts||0) > (cur.ts||0)){ nodes.set(n.id, n); updated++; }
+    }
+    saveLocal(); menuEl.hidden = true; render();
+    toast(`Загружено: новых ${added}, обновлено ${updated}`);
+  } catch { toast('Это не файл копии «Чистой головы»'); }
+};
+
+/* ---------- offline ---------- */
+if('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+if(navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+})();
+</script>
+</body>
+</html>
