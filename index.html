@@ -164,6 +164,8 @@ main{flex:1;min-height:0;position:relative;display:flex}
 .prow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .prow label{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:4px 4px 4px 10px}
 .prow input[type=date]{border:0;background:transparent;padding:5px;font-size:14px}
+.prow input#fAmt{border:0;background:transparent;padding:5px;font-size:14px;width:90px;color:var(--text)}
+.tag.amt{color:var(--f-subs);font-weight:600}
 .pill{padding:8px 12px;border-radius:10px;font-size:13px;font-weight:500;border:1px solid var(--line)}
 .pill[aria-pressed="true"]{background:color-mix(in srgb,var(--warn) 22%,transparent);border-color:var(--warn)}
 .spacer{flex:1}
@@ -239,7 +241,8 @@ main{flex:1;min-height:0;position:relative;display:flex}
     <textarea id="fText" rows="2" placeholder="Что сделать или о чём подумать"></textarea>
     <textarea id="fNote" rows="2" placeholder="Заметка, ссылка, детали (необязательно)"></textarea>
     <div class="prow">
-      <label for="fDue">Срок <input type="date" id="fDue"></label>
+      <label for="fDue"><span id="fDueL">Срок</span> <input type="date" id="fDue"></label>
+      <label for="fAmt">Сумма <input type="text" id="fAmt" placeholder="$3/год"></label>
       <button type="button" class="pill" id="fToday" aria-pressed="false">На сегодня</button>
     </div>
     <div class="prow">
@@ -498,8 +501,9 @@ const openRows = new Set();
 function taskRow(n, depth, hasKids, collapsed){
   const f = FM[n.f];
   const tags = [];
-  if(n.due) tags.push(`<span class="tag ${isLate(n)?'late':''}">${fmtDue(n.due)}</span>`);
+  if(n.due) tags.push(`<span class="tag ${isLate(n)?'late':''}">${n.f==='subs'?'до ':''}${fmtDue(n.due)}</span>`);
   if(n.today && !n.done) tags.push(`<span class="tag hot">сегодня</span>`);
+  if(n.amt) tags.push(`<span class="tag amt">${esc(n.amt)}</span>`);
   if(n.note) tags.push(`<span class="tag">заметка</span>`);
   return `<div class="task ${n.done?'done':''}" style="--ind:${depth};--c:${f.color}">
     <button class="mini caret ${hasKids?'':'none'}" data-toggle="${n.id}" aria-expanded="${!collapsed}" aria-label="Свернуть">${ico('caret')}</button>
@@ -589,7 +593,7 @@ function layout(f){
     const max = n.d===0 ? 200 : n.d===1 ? 210 : 190;
     const r = wrapText(n.t, FONT(n.d), max);
     n.lines = r.lines;
-    n.meta = n.n ? [n.n.due ? fmtDue(n.n.due) : '', n.n.today && !n.n.done ? 'сегодня' : '', n.n.note ? 'заметка' : ''].filter(Boolean).join(' · ') : '';
+    n.meta = n.n ? [n.n.amt || '', n.n.due ? (n.n.f==='subs'?'до ':'') + fmtDue(n.n.due) : '', n.n.today && !n.n.done ? 'сегодня' : '', n.n.note ? 'заметка' : ''].filter(Boolean).join(' · ') : '';
     let mw = 0; if(n.meta){ measure.font = '400 11px Onest, sans-serif'; mw = measure.measureText(n.meta).width; }
     n.w = Math.ceil(Math.max(r.w, mw, 24)) + PX*2 + (n.d===0 ? 8 : 0);
     n.h = r.lines.length*LH(n.d) + (n.meta ? 15 : 0) + PY*2 + (n.d===0 ? 6 : 0);
@@ -794,6 +798,8 @@ function openSheet(s){
   $('#fText').value = n ? n.t : '';
   $('#fNote').value = n ? (n.note || '') : '';
   $('#fDue').value = n ? (n.due || '') : '';
+  $('#fAmt').value = n ? (n.amt || '') : '';
+  $('#fDueL').textContent = s.f === 'subs' ? 'Истекает' : 'Срок';
   s.today = n ? !!n.today : false;
   $('#fToday').setAttribute('aria-pressed', String(s.today));
   $('#fDel').hidden = !n; $('#fMore').hidden = !!n;
@@ -806,7 +812,7 @@ function openEdit(id){ const n = nodes.get(id); if(n) openSheet({id, f:n.f, p:n.
 function saveSheet(more){
   if(!sheet) return;
   const text = $('#fText').value.trim();
-  const fields = {note: $('#fNote').value.trim(), due: $('#fDue').value, today: sheet.today};
+  const fields = {note: $('#fNote').value.trim(), due: $('#fDue').value, amt: $('#fAmt').value.trim(), today: sheet.today};
   if(sheet.id){
     const n = nodes.get(sheet.id);
     if(n && text){
@@ -824,7 +830,7 @@ function saveSheet(more){
   if(sheet.quick){ toast(`Записано в «${FM[sheet.f].name}»`); }
   if(more){
     sheet.afterO = n ? n.o : sheet.afterO;
-    $('#fText').value = ''; $('#fNote').value = ''; $('#fDue').value = '';
+    $('#fText').value = ''; $('#fNote').value = ''; $('#fDue').value = ''; $('#fAmt').value = '';
     sheet.today = false; $('#fToday').setAttribute('aria-pressed','false');
     $('#fText').focus();
   } else {
@@ -841,6 +847,7 @@ $('#scrim').onclick = closeSheet;
 $('#sFolders').addEventListener('click', e => {
   const c = e.target.closest('[data-sf]'); if(!c || !sheet) return;
   sheet.f = c.dataset.sf; if(sheet.quick){ sheet.p = null; }
+  $('#fDueL').textContent = sheet.f === 'subs' ? 'Истекает' : 'Срок';
   $('#sFolders').querySelectorAll('[data-sf]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.sf === sheet.f)));
 });
 addEventListener('keydown', e => {
