@@ -20,7 +20,7 @@
 :root{
   --bg:#f4f6f2; --surface:#ffffff; --surface-2:#eceff0; --fg:#1b2220; --muted:#68716d; --line:#dde2dc;
   --dot:#cfd6cf; --node:#ffffff; --accent:#1f6b57; --accent-fg:#ffffff; --danger:#c2392f; --warn:#c7811a; --ok:#2c9a62;
-  --f-fb:#3567d4; --f-tr:#de7420; --f-seo:#1f9566; --f-yt:#d6372f; --f-life:#8556c6; --f-ideas:#b28a12;
+  --f-fb:#3567d4; --f-tr:#de7420; --f-seo:#1f9566; --f-yt:#d6372f; --f-life:#8556c6; --f-ideas:#b28a12; --f-subs:#0f8a8a;
   --b1:#3f7fe0; --b2:#e0582f; --b3:#2aa071; --b4:#b04fc4; --b5:#d99a12; --b6:#1b9db3; --b7:#d6406f; --b8:#6b7f2a;
   --shadow:0 8px 28px rgba(20,40,30,.14);
   --font-display:'Unbounded','Onest',system-ui,sans-serif;
@@ -29,14 +29,14 @@
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#121614; --surface:#1b211e; --surface-2:#232a27; --fg:#e8eeea; --muted:#94a09a; --line:#2e3833;
   --dot:#2b3430; --node:#1d2420; --accent:#5cc7a2; --accent-fg:#0d1a15; --danger:#ef6b5f; --warn:#e9a43c; --ok:#53c48a;
-  --f-fb:#6b95f0; --f-tr:#f29a52; --f-seo:#4cc28e; --f-yt:#f06a60; --f-life:#ad86ea; --f-ideas:#dcb43c;
+  --f-fb:#6b95f0; --f-tr:#f29a52; --f-seo:#4cc28e; --f-yt:#f06a60; --f-life:#ad86ea; --f-ideas:#dcb43c; --f-subs:#3cc4c4;
   --b1:#6fa0f2; --b2:#f2805a; --b3:#52c595; --b4:#c77fdc; --b5:#eab93e; --b6:#4cc2d6; --b7:#ef6f97; --b8:#a2b858;
   --shadow:0 10px 30px rgba(0,0,0,.45); color-scheme:dark;
 }}
 :root[data-theme="dark"]{
   --bg:#121614; --surface:#1b211e; --surface-2:#232a27; --fg:#e8eeea; --muted:#94a09a; --line:#2e3833;
   --dot:#2b3430; --node:#1d2420; --accent:#5cc7a2; --accent-fg:#0d1a15; --danger:#ef6b5f; --warn:#e9a43c; --ok:#53c48a;
-  --f-fb:#6b95f0; --f-tr:#f29a52; --f-seo:#4cc28e; --f-yt:#f06a60; --f-life:#ad86ea; --f-ideas:#dcb43c;
+  --f-fb:#6b95f0; --f-tr:#f29a52; --f-seo:#4cc28e; --f-yt:#f06a60; --f-life:#ad86ea; --f-ideas:#dcb43c; --f-subs:#3cc4c4;
   --b1:#6fa0f2; --b2:#f2805a; --b3:#52c595; --b4:#c77fdc; --b5:#eab93e; --b6:#4cc2d6; --b7:#ef6f97; --b8:#a2b858;
   --shadow:0 10px 30px rgba(0,0,0,.45); color-scheme:dark;
 }
@@ -289,6 +289,7 @@ const FOLDERS = [
   {id:'yt',      name:'YouTube',                color:'var(--f-yt)'},
   {id:'life',    name:'Быт',                    color:'var(--f-life)'},
   {id:'ideas',   name:'Другие идеи',            color:'var(--f-ideas)'},
+  {id:'subs',    name:'Подписки и расходы',     color:'var(--f-subs)'},
 ];
 const FM = Object.fromEntries(FOLDERS.map(f => [f.id, f]));
 const BR = ['--b1','--b2','--b3','--b4','--b5','--b6','--b7','--b8'].map(v => `var(${v})`);
