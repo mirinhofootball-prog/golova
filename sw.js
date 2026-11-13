@@ -1,10 +1,10 @@
 // Offline cache for «Чистая голова». Serves from cache instantly,
 // refreshes files in the background so updates show on the next open.
-const CACHE = 'golova-v2';
+const CACHE = 'golova-v3';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL.map(u => new Request(u, { cache: 'reload' })))).then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', e => {
@@ -24,7 +24,8 @@ self.addEventListener('fetch', e => {
   e.respondWith(caches.open(CACHE).then(async cache => {
     const key = req.mode === 'navigate' ? './index.html' : req;
     const hit = await cache.match(key, { ignoreSearch: req.mode === 'navigate' });
-    const net = fetch(req).then(res => {
+    const fresh = host === self.location.host ? fetch(req.url, { cache: 'no-cache' }) : fetch(req);
+    const net = fresh.then(res => {
       if (res && (res.ok || res.type === 'opaque')) cache.put(key, res.clone());
       return res;
     }).catch(() => hit);
