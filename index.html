@@ -173,6 +173,9 @@ main{flex:1;min-height:0;position:relative;display:flex}
 .menu-list{display:flex;flex-direction:column;gap:8px}
 .menu-list .btn{text-align:left;display:flex;flex-direction:column;gap:2px;padding:12px 14px}
 .menu-list .btn small{font-weight:400;color:var(--muted);font-size:12.5px}
+.tokenin{width:100%;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:11px 12px;font-size:16px}
+.tokenin:focus{outline:2px solid var(--accent);border-color:transparent}
+.panel{max-height:calc(100% - 40px);overflow-y:auto}
 .nudge{font-size:13px;color:var(--muted);text-align:left;text-decoration:underline;padding:0}
 </style>
 </head>
@@ -251,7 +254,17 @@ main{flex:1;min-height:0;position:relative;display:flex}
   <div class="scrim" data-closemenu></div>
   <div class="panel">
     <div class="grip"></div>
-    <h3>Резервная копия</h3>
+    <h3>Синхронизация</h3>
+    <div class="crumb" id="syncInfo"></div>
+    <div class="menu-list" id="syncOff">
+      <input type="password" id="tokenInput" class="tokenin" placeholder="Вставь ключ GitHub (github_pat_…)" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <button class="btn primary" id="tokenSave">Подключить синхронизацию</button>
+    </div>
+    <div class="menu-list" id="syncOn" hidden>
+      <button class="btn" id="syncNowBtn">Синхронизировать сейчас<small>Само происходит при каждом изменении и раз в минуту</small></button>
+      <button class="btn" id="tokenDrop">Отключить на этом устройстве<small>Задачи останутся в телефоне</small></button>
+    </div>
+    <h3 style="margin-top:6px">Резервная копия</h3>
     <div class="crumb" id="backupInfo"></div>
     <div class="menu-list">
       <button class="btn" id="exportBtn">Сохранить копию<small>Файл со всеми задачами: отправь себе в Telegram или сохрани в «Файлы»</small></button>
@@ -313,15 +326,20 @@ function enqueue(id, fn){
   queues.set(id, p);
 }
 const bodyOf = n => { const b = {...n}; delete b.id; return b; };
+let tombs = {};
+try { tombs = JSON.parse(lsGet('cg2-tombs') || '{}') || {}; } catch {}
+const saveTombs = () => lsSet('cg2-tombs', JSON.stringify(tombs));
 function put(n, quiet){
   n.ts = Date.now();
   nodes.set(n.id, n); saveLocal();
   if(col) enqueue(n.id, () => col.doc(n.id).set(bodyOf(n)));
+  scheduleSync();
   if(!quiet) render();
 }
 function removeIds(ids){
-  ids.forEach(id => { nodes.delete(id); if(col) enqueue(id, () => col.doc(id).delete()); });
-  saveLocal(); render();
+  const now = Date.now();
+  ids.forEach(id => { nodes.delete(id); tombs[id] = now; if(col) enqueue(id, () => col.doc(id).delete()); });
+  saveLocal(); saveTombs(); scheduleSync(); render();
 }
 const newId = () => 'n' + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
 
@@ -881,8 +899,96 @@ function backupAge(){ const t = +lsGet('cg2-lastbackup') || 0; return t ? Math.f
 function openMenu(){
   const a = backupAge();
   $('#backupInfo').textContent = `Задач: ${nodes.size}. ` + (a === null ? 'Копию ещё не сохраняли.' : a === 0 ? 'Последняя копия — сегодня.' : `Последняя копия — ${a} дн. назад.`);
+  renderSyncInfo();
   menuEl.hidden = false;
 }
+
+/* ---------- sync via private GitHub repo ---------- */
+const SYNC_URL = 'https://api.github.com/repos/mirinhofootball-prog/golova-data/contents/tasks.json';
+let syncToken = lsGet('cg2-token') || '';
+let syncing = false, syncAgain = false, syncTimer = null, syncErr = '';
+let lastSync = +lsGet('cg2-lastsync') || 0;
+function scheduleSync(delay = 3000){
+  if(!syncToken) return;
+  clearTimeout(syncTimer); syncTimer = setTimeout(syncNow, delay);
+}
+const b64e = s => { const b = new TextEncoder().encode(s); let bin = ''; for(let i = 0; i < b.length; i += 0x8000) bin += String.fromCharCode.apply(null, b.subarray(i, i + 0x8000)); return btoa(bin); };
+const b64d = s => { const bin = atob(String(s).replace(/\s/g,'')); const b = new Uint8Array(bin.length); for(let i = 0; i < bin.length; i++) b[i] = bin.charCodeAt(i); return new TextDecoder().decode(b); };
+function gh(method, body){
+  return fetch(SYNC_URL + (method === 'GET' ? '?ref=main&_=' + Date.now() : ''), {
+    method, cache: 'no-store',
+    headers: { Authorization: 'Bearer ' + syncToken, Accept: 'application/vnd.github+json', ...(body ? {'Content-Type':'application/json'} : {}) },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+}
+function mergeRemote(remote){
+  let changed = false;
+  for(const [id, ts] of Object.entries(remote.deleted || {})) if(!tombs[id] || tombs[id] < ts) tombs[id] = ts;
+  for(const n of remote.nodes || []){
+    if(!n || typeof n.id !== 'string' || !FM[n.f] || typeof n.t !== 'string') continue;
+    const cur = nodes.get(n.id);
+    if(!cur || (n.ts || 0) > (cur.ts || 0)){ nodes.set(n.id, n); changed = true; }
+  }
+  for(const [id, ts] of Object.entries(tombs)){ const n = nodes.get(id); if(n && (n.ts || 0) <= ts){ nodes.delete(id); changed = true; } }
+  const cut = Date.now() - 120*864e5;
+  for(const id in tombs) if(tombs[id] < cut) delete tombs[id];
+  return changed;
+}
+const sig = o => (o.nodes || []).map(n => n.id + ':' + (n.ts || 0)).sort().join(',') + '|' + Object.entries(o.deleted || {}).map(([k,v]) => k + ':' + v).sort().join(',');
+async function syncNow(){
+  clearTimeout(syncTimer);
+  if(!syncToken){ renderSyncInfo(); return; }
+  if(!navigator.onLine){ syncErr = 'Нет интернета — синхронизирую, когда появится'; renderSyncInfo(); return; }
+  if(syncing){ syncAgain = true; return; }
+  syncing = true; syncErr = ''; renderSyncInfo();
+  try {
+    for(let attempt = 0; attempt < 3; attempt++){
+      const r = await gh('GET');
+      let remote = {nodes:[], deleted:{}}, sha;
+      if(r.status === 200){ const j = await r.json(); sha = j.sha; try { remote = JSON.parse(b64d(j.content || '')) || remote; } catch {} }
+      else if(r.status === 401 || r.status === 403) throw new Error('auth');
+      else if(r.status !== 404) throw new Error('http');
+      if(mergeRemote(remote)){ saveLocal(); render(); }
+      saveTombs();
+      const mine = {app:'chistaya-golova', v:1, updated:new Date().toISOString(), nodes:[...nodes.values()], deleted:tombs};
+      if(sig(mine) === sig(remote)) break;
+      const p = await gh('PUT', {message:'sync ' + mine.updated, content:b64e(JSON.stringify(mine)), branch:'main', ...(sha ? {sha} : {})});
+      if(p.ok) break;
+      if(p.status === 401 || p.status === 403) throw new Error('auth');
+      if(p.status !== 409 && p.status !== 422) throw new Error('http');
+    }
+    lastSync = Date.now(); lsSet('cg2-lastsync', String(lastSync));
+  } catch(e) {
+    syncErr = e && e.message === 'auth' ? 'Ключ не подходит: проверь, что у него есть доступ к golova-data (Contents: Read and write)' : 'GitHub не ответил — попробую ещё раз';
+  }
+  syncing = false; renderSyncInfo();
+  if(syncAgain){ syncAgain = false; scheduleSync(500); }
+}
+function renderSyncInfo(){
+  const dot = $('#sync');
+  dot.hidden = !syncToken;
+  dot.className = 'sync ' + (syncErr ? 'err' : syncing ? 'slow' : 'ok');
+  dot.title = syncErr || 'Синхронизировано';
+  $('#syncOff').hidden = !!syncToken; $('#syncOn').hidden = !syncToken;
+  const ago = lastSync ? Math.round((Date.now() - lastSync)/60000) : null;
+  $('#syncInfo').textContent = !syncToken
+    ? 'Подключи ключ, и задачи будут одинаковыми на телефоне и компьютере.'
+    : syncErr || (syncing ? 'Синхронизирую…' : ago === null ? 'Ещё не синхронизировано' : ago < 1 ? 'Синхронизировано только что' : `Синхронизировано ${ago} мин назад`);
+}
+$('#tokenSave').onclick = () => {
+  const v = $('#tokenInput').value.trim();
+  if(!/^(github_pat_|ghp_)[A-Za-z0-9_]{20,}$/.test(v)){ toast('Это не похоже на ключ GitHub'); return; }
+  syncToken = v; lsSet('cg2-token', v); $('#tokenInput').value = '';
+  syncNow();
+};
+$('#tokenDrop').onclick = () => { syncToken = ''; lsSet('cg2-token', ''); syncErr = ''; renderSyncInfo(); };
+$('#syncNowBtn').onclick = () => syncNow();
+addEventListener('online', () => scheduleSync(300));
+document.addEventListener('visibilitychange', () => { if(document.visibilityState === 'visible') scheduleSync(300); });
+setInterval(() => { if(document.visibilityState === 'visible') scheduleSync(0); }, 60000);
+setInterval(() => { if(!menuEl.hidden) renderSyncInfo(); }, 20000);
+renderSyncInfo();
+scheduleSync(500);
 $('#menuBtn').onclick = openMenu;
 menuEl.addEventListener('click', e => { if(e.target.closest('[data-closemenu]')) menuEl.hidden = true; });
 $('#exportBtn').onclick = async () => {
@@ -913,7 +1019,7 @@ $('#importFile').onchange = async e => {
       if(!cur){ nodes.set(n.id, n); added++; }
       else if((n.ts||0) > (cur.ts||0)){ nodes.set(n.id, n); updated++; }
     }
-    saveLocal(); menuEl.hidden = true; render();
+    saveLocal(); menuEl.hidden = true; render(); scheduleSync(300);
     toast(`Загружено: новых ${added}, обновлено ${updated}`);
   } catch { toast('Это не файл копии «Чистой головы»'); }
 };

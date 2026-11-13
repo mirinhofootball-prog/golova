@@ -1,6 +1,6 @@
 // Offline cache for «Чистая голова». Serves from cache instantly,
 // refreshes files in the background so updates show on the next open.
-const CACHE = 'golova-v1';
+const CACHE = 'golova-v2';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
@@ -18,6 +18,9 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   const req = e.request;
   if (req.method !== 'GET') return;
+  const host = new URL(req.url).host;
+  // only the app itself and its fonts; never cache the sync API
+  if (host !== self.location.host && host !== 'fonts.googleapis.com' && host !== 'fonts.gstatic.com') return;
   e.respondWith(caches.open(CACHE).then(async cache => {
     const key = req.mode === 'navigate' ? './index.html' : req;
     const hit = await cache.match(key, { ignoreSearch: req.mode === 'navigate' });
