@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Чистая голова</title>
+<title>Голова</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -179,6 +179,109 @@ main{flex:1;min-height:0;position:relative;display:flex}
 .tokenin:focus{outline:2px solid var(--accent);border-color:transparent}
 .panel{max-height:calc(100% - 40px);overflow-y:auto}
 .nudge{font-size:13px;color:var(--muted);text-align:left;text-decoration:underline;padding:0}
+
+.eyebrow{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (max-width:600px){.top{flex-wrap:wrap}.seg{order:5;width:100%}.seg button{flex:1}}
+/* Sidebar (desktop): folders with pinned Claude chats */
+.side{display:none}
+@media (min-width:900px){
+  body{padding-left:276px}
+  .side{display:flex;flex-direction:column;gap:1px;position:fixed;left:0;top:0;bottom:0;width:276px;background:var(--surface);border-right:1px solid var(--line);padding:14px 10px 20px;overflow-y:auto;z-index:6}
+  .tabs{display:none}
+  .fab{bottom:24px}
+}
+.brand{font-family:var(--font-display);font-weight:600;font-size:18px;padding:4px 10px 12px}
+.sl{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:10px;text-align:left;width:100%;font-weight:500;font-size:14px}
+.sl:hover{background:var(--surface-2)}
+.sl[aria-current="true"]{background:color-mix(in srgb,var(--accent) 15%,transparent)}
+.sl .dot,.dot{width:10px;height:10px;border-radius:3px;background:var(--c);flex:none;display:inline-block}
+.sl .n{margin-left:auto;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.sl .n.red{color:var(--danger);font-weight:700}
+.sl.chat{padding:6px 10px 6px 30px;font-weight:400;font-size:13px;color:var(--muted)}
+.sl.chat[aria-current="true"]{color:var(--fg)}
+.sl .t,.arow .t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0}
+.sh{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:14px 10px 4px}
+.cdot{width:8px;height:8px;border-radius:50%;flex:none;background:var(--muted)}
+.cdot.wait{background:var(--b6)}.cdot.ans{background:var(--danger)}.cdot.done{background:var(--line)}.cdot.draft{background:var(--warn)}
+
+/* Dashboard */
+.wrap.wide{max-width:1100px}
+.pulse{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.pt{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 12px;text-align:left;display:flex;flex-direction:column;gap:2px;min-width:0}
+.pt b{font-family:var(--font-display);font-size:22px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--c)}
+.pt span{font-size:12px;color:var(--muted);line-height:1.2}
+.pt.zero b{color:var(--muted);opacity:.55}
+@media (max-width:440px){.pt{padding:8px 9px}.pt b{font-size:19px}.pt span{font-size:11px}}
+.tiles{display:grid;gap:10px;grid-template-columns:minmax(0,1fr)}
+@media (min-width:700px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.ftile{background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--c);border-radius:14px;padding:12px 14px;text-align:left;display:flex;flex-direction:column;gap:8px;width:100%;transition:transform .12s}
+.ftile:active{transform:scale(.99)}
+.ft-h{display:flex;align-items:center;gap:8px}
+.ft-h h2{margin:0;font-family:var(--font-display);font-weight:500;font-size:16px;flex:1;min-width:0}
+.ft-goal,.pc-goal{font-size:13px;color:var(--muted)}
+.ft-goal b{color:var(--fg);font-weight:600}
+.ft-chips{display:flex;gap:6px;flex-wrap:wrap;font-size:12px}
+.st{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:2px 8px;border-radius:999px;background:color-mix(in srgb,var(--s) 16%,transparent);color:var(--fg);white-space:nowrap;flex:none}
+.st::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--s)}
+.tag.me{background:color-mix(in srgb,var(--b4) 20%,transparent);color:var(--fg)}
+.tag.ok{background:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--fg)}
+.prog{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.prog .bar{flex:1;height:6px;border-radius:3px}
+.goalb{background:color-mix(in srgb,var(--c) 9%,var(--surface));border:1px solid color-mix(in srgb,var(--c) 35%,var(--line));border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;text-align:left;width:100%}
+.goalb b{font-family:var(--font-display);font-weight:500;font-size:15px}
+.pgrid{display:grid;gap:10px;grid-template-columns:minmax(0,1fr);align-items:start}
+@media (min-width:1000px){.pgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.pcard{background:var(--surface);border:1px solid var(--line);border-top:4px solid var(--s);border-radius:16px;padding:10px 14px 8px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.pc-h{display:flex;align-items:center;gap:8px;text-align:left;width:100%;padding:2px 0}
+.pc-h .nm{font-family:var(--font-display);font-weight:500;font-size:15px;flex:1;min-width:0}
+.pc-h .cv{width:16px;height:16px;color:var(--muted);transition:transform .15s;flex:none}
+.pc-h[aria-expanded="true"] .cv{transform:rotate(90deg)}
+.pc-line{font-size:13.5px;display:flex;gap:8px;align-items:baseline}
+.pc-line b{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600;flex:none;width:74px}
+.pc-line span{overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;min-width:0}
+.pc-line em{font-style:normal}
+.pc-f{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);flex-wrap:wrap}
+.pc-f .red{color:var(--danger)}
+.lnk{font-size:13px;font-weight:600;color:var(--accent);padding:6px 8px;border-radius:8px}
+.lnk:hover{background:var(--surface-2)}
+.pc-body{border-top:1px solid var(--line);margin:0 -6px}
+.pc-add{display:flex;gap:4px;flex-wrap:wrap;padding:6px 0 2px}
+.arow{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:10px 4px;border-bottom:1px solid var(--line);font-size:14px}
+.arow .tag{flex:none}
+.hintp{font-size:13px;color:var(--muted);margin:4px 0}
+.row2{display:flex;gap:8px;flex-wrap:wrap}
+.btn.sm{padding:6px 10px;font-size:13px}
+/* Finance */
+.fin{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+@media (min-width:560px){.fin{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.fin div{background:var(--bg);border-radius:12px;padding:8px 10px;min-width:0}
+.fin b{display:block;font-family:var(--font-display);font-weight:600;font-size:15px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.fin span{font-size:11.5px;color:var(--muted)}
+.hb{display:grid;grid-template-columns:auto 1fr;gap:6px 10px;align-items:center;font-size:12px;color:var(--muted)}
+.hb i{display:block;height:10px;border-radius:5px;width:var(--w);min-width:3px;background:var(--c)}
+.fsec{display:flex;flex-direction:column;gap:2px}
+.fsec h4{margin:4px 0 2px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.fsec button{display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:5px 0;font-size:13.5px;flex-wrap:wrap}
+.fsec button>span:first-child{flex:1;min-width:0}
+.fsec .prog{width:100%}
+/* Send bar + chat */
+.sendbar{position:fixed;left:16px;right:90px;bottom:calc(80px + env(safe-area-inset-bottom,0px));z-index:7;background:var(--fg);color:var(--bg);border-radius:14px;padding:8px 8px 8px 14px;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow);font-size:14px;max-width:560px}
+.sendbar span{flex:1;min-width:0}
+.sendbar button{background:var(--accent);color:var(--accent-fg);border-radius:10px;padding:9px 12px;font-weight:600;flex:none}
+@media (min-width:900px){.sendbar{left:300px;bottom:24px}}
+.chatv{display:flex;flex-direction:column;gap:10px;max-width:760px;margin:0 auto;min-height:100%}
+.chat-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.msg{max-width:90%;padding:10px 12px;border-radius:14px;background:var(--surface);border:1px solid var(--line);white-space:pre-wrap;overflow-wrap:anywhere;font-size:14.5px}
+.msg.me{align-self:flex-end;background:color-mix(in srgb,var(--accent) 12%,var(--surface))}
+.msg .who{display:block;font-size:11px;color:var(--muted);margin-bottom:4px}
+.msg ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px;white-space:normal}
+.ref{font-size:11.5px;color:var(--muted);display:block}
+.composer{display:flex;gap:8px;align-items:flex-end;position:sticky;bottom:0;background:var(--bg);padding:8px 0 4px;margin-top:auto}
+.composer textarea{flex:1;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 12px;resize:vertical;font-size:16px;min-height:46px}
+.composer textarea:focus{outline:2px solid var(--accent);border-color:transparent}
+.prow input.grow{flex:1;min-width:0;border:0;background:transparent;padding:5px;font-size:14px}
+.prow label.grow{flex:1;min-width:180px}
+.prow input#fPct{border:0;background:transparent;padding:5px;font-size:14px;width:56px}
 </style>
 </head>
 <body>
@@ -197,14 +300,17 @@ main{flex:1;min-height:0;position:relative;display:flex}
   <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
   <symbol id="i-caret" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-folders" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2"/></g></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H10l-6 4.5V5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
   <symbol id="i-map" viewBox="0 0 30 30"><g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="15" cy="15" r="4.5" fill="currentColor"/><path d="M19 13C23 9 24 7 27 6M19 17c4 4 5 6 8 7M11 13C7 9 6 7 3 6M11 17c-4 4-5 6-8 7"/></g></symbol>
 </svg>
 
+<aside class="side" id="side"></aside>
 <header class="top">
   <button class="iconbtn" id="back" aria-label="Назад" hidden><svg><use href="#i-back"/></svg></button>
-  <div class="ttl"><span class="eyebrow" id="eyebrow">Чистая голова</span><h1 id="title">Папки</h1></div>
+  <div class="ttl"><span class="eyebrow" id="eyebrow">Голова</span><h1 id="title">Мирас</h1></div>
   <div class="seg" id="seg" hidden>
-    <button data-mode="map" aria-pressed="true">Карта</button>
+    <button data-mode="board" aria-pressed="true">Обзор</button>
+    <button data-mode="map" aria-pressed="false">Карта</button>
     <button data-mode="list" aria-pressed="false">Список</button>
   </div>
   <span class="sync" id="sync" hidden></span>
@@ -226,9 +332,11 @@ main{flex:1;min-height:0;position:relative;display:flex}
 </main>
 
 <nav class="tabs">
-  <button data-tab="home" aria-current="true"><svg><use href="#i-folders"/></svg>Папки</button>
+  <button data-tab="home" aria-current="true"><svg><use href="#i-folders"/></svg>Мирас</button>
   <button data-tab="today" aria-current="false"><svg><use href="#i-sun"/></svg>Сегодня<span class="badge" id="badge" hidden></span></button>
+  <button data-tab="chats" aria-current="false"><svg><use href="#i-chat"/></svg>Чаты<span class="badge" id="badge2" hidden></span></button>
 </nav>
+<div class="sendbar" id="sendbar" hidden></div>
 <button class="fab" id="fab" aria-label="Быстро записать мысль"><svg><use href="#i-plus"/></svg></button>
 
 <div class="sheet" id="sheet" hidden>
@@ -240,6 +348,11 @@ main{flex:1;min-height:0;position:relative;display:flex}
     <div class="chips" id="sFolders"></div>
     <textarea id="fText" rows="2" placeholder="Что сделать или о чём подумать"></textarea>
     <textarea id="fNote" rows="2" placeholder="Заметка, ссылка, детали (необязательно)"></textarea>
+    <div class="chips" id="fSt" style="flex-wrap:wrap"></div>
+    <div class="prow">
+      <label class="grow" for="fGoal">Цель <input class="grow" id="fGoal" placeholder="напр. CFD ≤ $15 или 1000 подписчиков"></label>
+      <label for="fPct">% <input type="number" id="fPct" min="0" max="100" inputmode="numeric" placeholder="авто"></label>
+    </div>
     <div class="prow">
       <label for="fDue"><span id="fDueL">Срок</span> <input type="date" id="fDue"></label>
       <label for="fAmt">Сумма <input type="text" id="fAmt" placeholder="$3/год"></label>
@@ -250,6 +363,22 @@ main{flex:1;min-height:0;position:relative;display:flex}
       <span class="spacer"></span>
       <button type="button" class="btn" id="fMore">Ещё одну</button>
       <button type="submit" class="btn primary" id="fSave">Сохранить</button>
+    </div>
+  </form>
+</div>
+<div class="sheet" id="csheet" hidden>
+  <div class="scrim" data-closec></div>
+  <form class="panel" id="cform" autocomplete="off">
+    <div class="grip"></div>
+    <h3>Комментарий для Клода</h3>
+    <div class="crumb" id="cCrumb"></div>
+    <textarea id="cText" rows="3" placeholder="Что поменять, проверить или решить"></textarea>
+    <div class="crumb" id="cInfo"></div>
+    <div class="prow">
+      <button type="button" class="btn" data-closec>Отмена</button>
+      <span class="spacer"></span>
+      <button type="button" class="btn" id="cSendNow">Сразу отправить</button>
+      <button type="submit" class="btn primary">В черновик</button>
     </div>
   </form>
 </div>
@@ -287,15 +416,29 @@ const ico = (id, cls='') => `<svg class="${cls}"><use href="#i-${id}"/></svg>`;
 
 const FOLDERS = [
   {id:'fb',      name:'Facebook',               color:'var(--f-fb)'},
+  {id:'social',  name:'Соцсети',                color:'var(--f-yt)'},
   {id:'traffic', name:'Новый источник трафика', color:'var(--f-tr)'},
   {id:'seo',     name:'SEO',                    color:'var(--f-seo)'},
-  {id:'yt',      name:'YouTube',                color:'var(--f-yt)'},
-  {id:'life',    name:'Быт',                    color:'var(--f-life)'},
-  {id:'ideas',   name:'Другие идеи',            color:'var(--f-ideas)'},
-  {id:'subs',    name:'Подписки и расходы',     color:'var(--f-subs)'},
-  {id:'innov',   name:'Инновация',              color:'var(--f-innov)'},
+  {id:'me',      name:'Личное',                 color:'var(--f-life)'},
 ];
 const FM = Object.fromEntries(FOLDERS.map(f => [f.id, f]));
+const OLDF = {yt:'social', life:'me', subs:'me', ideas:'social', innov:'fb'}; // folders of the old app version
+const CHAT = '_chat';
+const known = f => !!FM[f] || f === CHAT;
+const ST = {
+  go:   {l:'Идёт',              c:'var(--ok)'},
+  risk: {l:'Риск',              c:'var(--warn)'},
+  fire: {l:'Горит',             c:'var(--danger)'},
+  me:   {l:'Нужно моё решение', c:'var(--b4)'},
+  wait: {l:'Жду ответа',        c:'var(--b6)'},
+  pause:{l:'Пауза',             c:'var(--muted)'},
+  done: {l:'Готово',            c:'var(--muted)'},
+};
+const ST_ORDER = ['fire','me','risk','wait','go','pause','done'];
+const stPill = s => s && ST[s] ? `<span class="st" style="--s:${ST[s].c}">${ST[s].l}</span>` : '';
+const trunc = (s, n) => (s = String(s || '')).length > n ? s.slice(0, n-1) + '…' : s;
+const plural = (n, a, b, c) => { const m = n % 10, h = n % 100; return m === 1 && h !== 11 ? a : m >= 2 && m <= 4 && (h < 12 || h > 14) ? b : c; };
+const fmtTime = t => new Date(t).toLocaleString('ru-RU', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'});
 const BR = ['--b1','--b2','--b3','--b4','--b5','--b6','--b7','--b8'].map(v => `var(${v})`);
 
 /* ---------- dates ---------- */
@@ -318,7 +461,7 @@ let col = null;
 const LS = 'cg2-nodes', LS_SYNCED = 'cg2-synced';
 const lsGet = k => { try { return localStorage.getItem(k); } catch { return null; } };
 const lsSet = (k,v) => { try { localStorage.setItem(k,v); } catch {} };
-try { JSON.parse(lsGet(LS) || '[]').forEach(n => nodes.set(n.id, n)); } catch {}
+try { JSON.parse(lsGet(LS) || '[]').forEach(n => { if(OLDF[n.f]) n.f = OLDF[n.f]; nodes.set(n.id, n); }); } catch {}
 const saveLocal = () => lsSet(LS, JSON.stringify([...nodes.values()]));
 
 const queues = new Map();
@@ -413,16 +556,121 @@ function folderStats(f){
   return {open, done, today, total: open+done};
 }
 
+/* ---------- dashboard helpers ---------- */
+const isChat = n => n.f === CHAT;
+const tasks = () => [...nodes.values()].filter(n => !isChat(n));
+const chats = () => [...nodes.values()].filter(n => isChat(n) && n.st !== 'draft');
+const draftOf = f => nodes.get('draft-' + f);
+const draftCount = f => { const d = draftOf(f); return d && d.items ? d.items.length : 0; };
+const isSubNode = n => !!(n && n.p && nodes.get(n.p) && nodes.get(n.p).fk === 'sub');
+function subtree(id, idx, f){ const out = []; (function rec(pid){ for(const k of idx.get(f+'|'+pid) || []){ out.push(k); rec(k.id); } })(id); return out; }
+function progress(n, desc){
+  if(n.pct !== undefined && n.pct !== null && n.pct !== '') return Math.max(0, Math.min(100, +n.pct || 0));
+  if(n.fin) return null;
+  const t = desc.filter(d => !d.fk); if(!t.length) return null;
+  return Math.round(t.filter(d => d.done).length / t.length * 100);
+}
+function autoSt(n, desc){
+  if(n.st) return n.st;
+  if(n.done) return 'done';
+  const open = desc.filter(d => !d.done);
+  if(desc.some(isLate) || open.some(d => d.st === 'fire')) return 'fire';
+  for(const s of ['me','risk','wait']) if(open.some(d => d.st === s)) return s;
+  return open.some(d => !d.fk) ? 'go' : '';
+}
+const worst = arr => ST_ORDER.find(s => arr.includes(s)) || '';
+function projInfo(n, idx){
+  const desc = subtree(n.id, idx, n.f);
+  const open = desc.filter(d => !d.done && !d.fk);
+  const late = desc.filter(isLate);
+  const next = open.filter(d => d.due).sort((a,b) => a.due.localeCompare(b.due))[0] || null;
+  const last = desc.filter(d => !d.fk).sort((a,b) => (b.created||0) - (a.created||0))[0] || null;
+  return {desc, open, late, next, last, pct: progress(n, desc), st: autoSt(n, desc)};
+}
+function folderParts(f, idx){
+  const tops = idx.get(f+'|') || [];
+  const goals = tops.filter(n => n.k === 'goal');
+  const projs = tops.filter(n => n.k !== 'goal' && (n.proj || (idx.get(f+'|'+n.id) || []).length));
+  const loose = tops.filter(n => n.k !== 'goal' && !projs.includes(n));
+  return {goals, projs, loose};
+}
+function attention(f){
+  const out = [];
+  for(const c of chats()) if((!f || c.folder === f) && c.unread) out.push({kind:'chat', n:c, w:0});
+  for(const n of tasks()){
+    if((f && n.f !== f) || n.done || n.fk) continue;
+    if(isLate(n)) out.push({kind:'late', n, w:1});
+    else if(n.st === 'fire') out.push({kind:'fire', n, w:1});
+    else if(n.st === 'me') out.push({kind:'me', n, w:2});
+    else if(n.due && dayDiff(n.due) <= 2) out.push({kind:'soon', n, w:3});
+  }
+  return out.sort((a,b) => a.w - b.w || (a.n.due||'').localeCompare(b.n.due||''));
+}
+function pulse(f){
+  const t = tasks().filter(n => (!f || n.f === f) && !n.done);
+  const cs = chats().filter(c => !f || c.folder === f);
+  return {
+    fire: t.filter(n => isLate(n) || n.st === 'fire').length,
+    me: t.filter(n => n.st === 'me').length,
+    ans: cs.filter(c => c.unread).length,
+    wait: cs.filter(c => c.st === 'wait').length + t.filter(n => n.st === 'wait').length,
+  };
+}
+const lastAt = c => (c.msgs || []).reduce((m, x) => Math.max(m, x.at || 0), c.created || 0);
+const byAct = (a, b) => lastAt(b) - lastAt(a);
+const CST = {wait:'Ждёт Клода', ans:'Клод ответил', done:'Учтено'};
+function pendMap(f){ const m = new Map(); const d = draftOf(f); (d && d.items || []).forEach(i => m.set(i.ref || '', (m.get(i.ref || '') || 0) + 1)); return m; }
+
+/* ---------- money (finance folder) ---------- */
+function money(s){
+  s = String(s || '').toLowerCase(); if(!s.trim()) return null;
+  const segs = s.split(/→|->|;/);
+  const seg = segs.find(x => /\/|в\s*(год|мес)/.test(x)) || segs[0];
+  const m = seg.match(/(\d[\d\s]*(?:[.,]\d+)?)\s*(к\b|k\b|тыс)?/); if(!m) return null;
+  let v = parseFloat(m[1].replace(/\s/g, '').replace(',', '.')); if(m[2]) v *= 1000;
+  if(!isFinite(v)) return null;
+  const cur = /\$|usd|долл/.test(seg) ? '$' : /₸|тг|kzt|тенге/.test(seg) ? '₸' : /₽|руб/.test(seg) ? '₽' : /£/.test(seg) ? '£' : '€';
+  const per = /год|year|\/\s*г\b/.test(seg) ? 'y' : /нед|week/.test(seg) ? 'w' : /разов|once/.test(seg) ? 'once' : /\/\s*(дн|день|day)/.test(seg) ? 'd' : 'm';
+  return {v, cur, per};
+}
+const monthly = m => m.per === 'y' ? m.v/12 : m.per === 'w' ? m.v*4.33 : m.per === 'd' ? m.v*30 : m.per === 'once' ? 0 : m.v;
+const fmtM = o => { const k = Object.keys(o); if(!k.length) return '—'; return k.map(c => { const v = Math.round(o[c]); const s = Math.abs(v).toLocaleString('ru-RU'); return (v < 0 ? '−' : '') + (c === '$' ? '$' + s : s + ' ' + c); }).join(' · '); };
+function finance(fin, idx){
+  const secs = idx.get(fin.f+'|'+fin.id) || [];
+  const by = fk => secs.filter(s => s.fk === fk).flatMap(s => subtree(s.id, idx, fin.f)).filter(x => !x.done);
+  const sum = (arr, fn) => { const o = {}; arr.forEach(x => { const m = money(x.amt); if(m){ const v = fn(m); if(v) o[m.cur] = (o[m.cur] || 0) + v; } }); return o; };
+  const inc = sum(by('inc'), monthly), exp = sum([...by('exp'), ...by('sub')], monthly), dep = sum(by('dep'), m => m.v);
+  const left = {}; new Set([...Object.keys(inc), ...Object.keys(exp)]).forEach(c => left[c] = (inc[c] || 0) - (exp[c] || 0));
+  const renew = by('sub').filter(x => x.due).sort((a,b) => a.due.localeCompare(b.due)).slice(0, 3);
+  return {inc, exp, dep, left, renew, goals: by('goal')};
+}
+function financeHTML(fi){
+  const tile = (l, o) => `<div><span>${l}</span><b>${fmtM(o)}</b></div>`;
+  const cur = Object.keys({...fi.inc, ...fi.exp})[0];
+  let bars = '';
+  if(cur){ const a = fi.inc[cur] || 0, b = fi.exp[cur] || 0, mx = Math.max(a, b, 1);
+    bars = `<div class="hb"><span>Доход</span><i style="--w:${a/mx*100}%;--c:var(--ok)"></i><span>Расход</span><i style="--w:${b/mx*100}%;--c:var(--danger)"></i></div>`; }
+  const goals = fi.goals.map(g => { const p = progress(g, []) ?? 0; return `<button data-edit="${g.id}"><span>${esc(g.t)}${g.amt ? ` · ${esc(g.amt)}` : ''}</span><div class="prog"><div class="bar" style="--c:var(--accent)"><i style="width:${p}%"></i></div>${p}%</div></button>`; }).join('');
+  const renew = fi.renew.map(s => `<button data-edit="${s.id}"><span>${esc(s.t)}</span><span class="tag ${dayDiff(s.due) <= 7 ? 'hot' : ''}">до ${fmtDue(s.due)}</span>${s.amt ? `<span class="tag amt">${esc(s.amt)}</span>` : ''}</button>`).join('');
+  const empty = !Object.keys(fi.inc).length && !Object.keys(fi.dep).length;
+  return `<div class="fin">${tile('Доход / мес', fi.inc)}${tile('Расход / мес', fi.exp)}${tile('Остаток / мес', fi.left)}${tile('Депозит', fi.dep)}</div>${bars}
+    ${renew ? `<div class="fsec"><h4>Ближайшие продления</h4>${renew}</div>` : ''}
+    ${goals ? `<div class="fsec"><h4>Финансовые цели</h4>${goals}</div>` : ''}
+    ${empty ? `<p class="hintp">Открой «Финансы» стрелкой и добавь суммы в разделы «Доходы», «Расходы», «Депозит», «Цели». Пиши как удобно: «2500 €/мес», «$10.68/год», «5000 €».</p>` : ''}`;
+}
+
 /* ---------- routing ---------- */
 let route = {view:'home'};
 function parse(h){
   h = (h||'').replace(/^#/,'');
-  if(h === 'today') return {view:'today'};
-  const m = h.match(/^f-([a-z]+)(-list)?$/);
-  if(m && FM[m[1]]) return {view:'folder', f:m[1], mode: m[2] ? 'list' : 'map'};
+  if(h === 'today' || h === 'chats') return {view:h};
+  let m = h.match(/^c-(.+)$/);
+  if(m) return {view:'chat', id: decodeURIComponent(m[1])};
+  m = h.match(/^f-([a-z]+)(?:-(map|list))?$/);
+  if(m && FM[m[1]]) return {view:'folder', f:m[1], mode: m[2] || 'board'};
   return {view:'home'};
 }
-const hashOf = r => r.view==='today' ? 'today' : r.view==='folder' ? 'f-'+r.f+(r.mode==='list'?'-list':'') : 'home';
+const hashOf = r => r.view==='today' || r.view==='chats' ? r.view : r.view==='chat' ? 'c-'+encodeURIComponent(r.id) : r.view==='folder' ? 'f-'+r.f+(r.mode!=='board'?'-'+r.mode:'') : 'home';
 function go(r){
   route = r; selected = null; render();
   try { if(location.hash !== '#'+hashOf(r)) location.hash = hashOf(r); } catch {}
@@ -435,44 +683,93 @@ addEventListener('hashchange', () => {
 /* ---------- render ---------- */
 const page = $('#page'), mapEl = $('#map');
 function render(){
-  const r = route;
-  $('#back').hidden = r.view !== 'folder';
-  $('#seg').hidden = r.view !== 'folder';
-  document.querySelectorAll('.tabs button').forEach(b => b.setAttribute('aria-current', String(b.dataset.tab === r.view || (b.dataset.tab==='home' && r.view==='folder'))));
-  const tc = [...nodes.values()].filter(isToday).length;
+  const r = route, inFolder = r.view === 'folder';
+  $('#back').hidden = !(inFolder || r.view === 'chat');
+  $('#seg').hidden = !inFolder;
+  document.querySelectorAll('.tabs button').forEach(b => b.setAttribute('aria-current', String(b.dataset.tab === r.view || (b.dataset.tab==='home' && inFolder) || (b.dataset.tab==='chats' && r.view==='chat'))));
+  const tc = tasks().filter(isToday).length;
   $('#badge').hidden = !tc; $('#badge').textContent = tc;
+  const uc = chats().filter(c => c.unread).length;
+  $('#badge2').hidden = !uc; $('#badge2').textContent = uc;
 
-  if(r.view === 'folder'){
-    $('#eyebrow').textContent = 'Папка';
+  if(inFolder){
+    $('#eyebrow').textContent = 'Мирас › папка';
     $('#title').textContent = FM[r.f].name;
     document.querySelectorAll('#seg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === r.mode)));
   } else if(r.view === 'today'){
     $('#eyebrow').textContent = new Date().toLocaleDateString('ru-RU',{weekday:'long', day:'numeric', month:'long'});
     $('#title').textContent = 'Сегодня';
+  } else if(r.view === 'chats'){
+    $('#eyebrow').textContent = 'Клод';
+    $('#title').textContent = 'Чаты по папкам';
+  } else if(r.view === 'chat'){
+    const c = nodes.get(r.id);
+    $('#eyebrow').textContent = 'Чат · ' + (c && FM[c.folder] ? FM[c.folder].name : '');
+    $('#title').textContent = c ? c.t : 'Чат';
   } else {
-    $('#eyebrow').textContent = 'Чистая голова';
-    $('#title').textContent = 'Папки';
+    $('#eyebrow').textContent = 'Голова';
+    $('#title').textContent = 'Мирас';
   }
 
-  const isMap = r.view === 'folder' && r.mode === 'map';
+  const isMap = inFolder && r.mode === 'map';
   mapEl.hidden = !isMap; page.hidden = isMap;
-  $('#fab').hidden = isMap && !!selected;
+  $('#fab').hidden = (isMap && !!selected) || r.view === 'chat';
   if(isMap) renderMap();
-  else if(r.view === 'folder') renderList();
+  else if(inFolder && r.mode === 'list') renderList();
+  else if(inFolder) renderBoard();
   else if(r.view === 'today') renderToday();
+  else if(r.view === 'chats') renderChats();
+  else if(r.view === 'chat') renderChat();
   else renderHome();
+  renderSendbar(); renderSide();
 }
 
-/* ---------- home ---------- */
-let captureFolder = lsGet('cg2-capf') || 'ideas';
+/* ---------- shared blocks ---------- */
+let captureFolder = lsGet('cg2-capf') || 'me';
+if(!FM[captureFolder]) captureFolder = 'me';
 function folderChips(active, attr){
   return FOLDERS.map(f => `<button type="button" class="chip" style="--c:${f.color}" data-${attr}="${f.id}" aria-pressed="${f.id===active}"><span class="dot"></span>${esc(f.name)}</button>`).join('');
 }
+function pulseHTML(p){
+  const t = (n, l, c, tab) => `<button class="pt ${n ? '' : 'zero'}" style="--c:${c}" data-tab="${tab}"><b>${n}</b><span>${l}</span></button>`;
+  return `<div class="pulse">${t(p.fire, 'Горит', 'var(--danger)', 'today')}${t(p.me, 'Моё решение', 'var(--b4)', 'today')}${t(p.ans, 'Ответы Клода', 'var(--accent)', 'chats')}${t(p.wait, 'Ждём ответа', 'var(--b6)', 'chats')}</div>`;
+}
+function attRow(a){
+  const n = a.n;
+  if(a.kind === 'chat') return `<button class="arow" data-chat="${n.id}"><span class="cdot ans"></span><span class="t">💬 Клод ответил: ${esc(n.t)}</span>${route.view !== 'folder' && FM[n.folder] ? `<span class="tag">${esc(FM[n.folder].name)}</span>` : ''}</button>`;
+  const lab = {late:['просрочено ' + fmtDue(n.due), 'late'], fire:['горит', 'late'], me:['нужно твоё решение', 'me'], soon:[fmtDue(n.due), 'hot']}[a.kind];
+  const c = crumb(n);
+  return `<div class="task" style="--c:${FM[n.f].color}"><button class="chk" data-done="${n.id}" aria-label="Выполнено">${ico('check')}</button>
+    <button class="txt" data-edit="${n.id}"><span class="t">${esc(n.t)}</span><div class="meta"><span class="tag ${lab[1]}">${lab[0]}</span>${route.view !== 'folder' ? `<span class="tag f">${esc(FM[n.f].name)}</span>` : ''}${c.length ? `<span>${esc(trunc(c.slice(-2).join(' › '), 60))}</span>` : ''}</div></button>
+    <button class="mini" data-comment="${n.id}" aria-label="Комментарий">${ico('chat')}</button></div>`;
+}
+function chatRow(c){ return `<button class="arow" data-chat="${c.id}"><span class="cdot ${c.unread ? 'ans' : c.st}"></span><span class="t">${esc(c.t)}</span><span class="tag ${c.unread ? 'ok' : ''}">${c.unread ? 'Новый ответ' : CST[c.st] || ''}</span></button>`; }
+
+/* ---------- home: Мирас ---------- */
 function renderHome(){
-  const all = [...nodes.values()];
+  const idx = index(), all = tasks();
   const today = all.filter(isToday).length, late = all.filter(isLate).length;
+  const attFull = attention(null), attAll = attFull.length, att = attFull.slice(0, 6);
   const draft = $('#capText') ? $('#capText').value : '';
-  page.innerHTML = `<div class="wrap">
+  const tiles = FOLDERS.map(f => {
+    const {goals, projs} = folderParts(f.id, idx);
+    const infos = projs.map(p => projInfo(p, idx));
+    const st = worst(infos.map(i => i.st));
+    const gp = goals.length ? progress(goals[0], []) : null;
+    const pcts = infos.map(i => i.pct).filter(x => x !== null);
+    const pct = gp !== null ? gp : pcts.length ? Math.round(pcts.reduce((a,b) => a+b, 0) / pcts.length) : null;
+    const pu = pulse(f.id), dk = draftCount(f.id);
+    const next = infos.flatMap(i => i.next ? [i.next] : []).sort((a,b) => a.due.localeCompare(b.due))[0];
+    const fin = projs.find(p => p.fin), fi = fin ? finance(fin, idx) : null;
+    return `<button class="ftile" style="--c:${f.color}" data-open="${f.id}">
+      <div class="ft-h"><h2>${esc(f.name)}</h2>${stPill(st)}</div>
+      <div class="ft-goal">${goals.length ? '🎯 ' + esc(goals[0].t.replace(/^Цель:\s*/, '')) : `${projs.length} ${plural(projs.length, 'проект', 'проекта', 'проектов')}: ${esc(trunc(projs.map(p => p.t).join(', '), 90))}`}</div>
+      ${pct !== null ? `<div class="prog"><div class="bar" style="--c:${f.color}"><i style="width:${pct}%"></i></div>${pct}%</div>` : ''}
+      ${fi ? `<div class="ft-goal">Расход/мес: <b>${fmtM(fi.exp)}</b> · Депозит: <b>${fmtM(fi.dep)}</b></div>` : ''}
+      <div class="ft-chips">${pu.fire ? `<span class="tag late">${pu.fire} горит</span>` : ''}${pu.me ? `<span class="tag me">${pu.me} решить</span>` : ''}${pu.ans ? `<span class="tag ok">${pu.ans} ответ Клода</span>` : ''}${pu.wait ? `<span class="tag">${pu.wait} ждём</span>` : ''}${dk ? `<span class="tag hot">✏️ ${dk} не отправлено</span>` : ''}${next ? `<span class="tag">Дальше: ${esc(trunc(next.t, 38))} · ${fmtDue(next.due)}</span>` : ''}</div>
+    </button>`;
+  }).join('');
+  page.innerHTML = `<div class="wrap wide">
     <form class="capture" id="capForm">
       <div class="capture-row">
         <input id="capText" placeholder="Что в голове? Запиши и забудь" enterkeyhint="done">
@@ -480,29 +777,168 @@ function renderHome(){
       </div>
       <div class="chips">${folderChips(captureFolder,'capf')}</div>
     </form>
-    <button class="todaybar" data-tab="today"><b>${today}</b><span>${today ? 'на сегодня' : 'Задач на сегодня нет. Отметь важные «На сегодня»'}${late ? ` · ${late} просрочено` : ''}</span>${ico('caret').replace('<svg','<svg style="width:18px;height:18px"')}</button>
-    ${nodes.size >= 5 && (backupAge() === null || backupAge() >= 14) ? `<button class="nudge" id="nudge">${backupAge() === null ? 'Копия задач ещё не сохранялась' : `Копия задач сохранялась ${backupAge()} дн. назад`} — сохранить</button>` : ''}
+    ${pulseHTML(pulse(null))}
     <h2 class="section-h">Направления</h2>
-    <div class="grid">${FOLDERS.map(f => {
-      const s = folderStats(f.id);
-      const pct = s.total ? Math.round(s.done/s.total*100) : 0;
-      return `<button class="fcard" style="--c:${f.color}" data-open="${f.id}">
-        <svg class="glyph" style="color:${f.color}"><use href="#i-map"/></svg>
-        <h2>${esc(f.name)}</h2>
-        <div class="stats">${s.total ? `${s.open} открыто${s.today ? ` · ${s.today} сегодня` : ''}` : 'Пусто — начни карту'}</div>
-        <div class="bar"><i style="width:${pct}%"></i></div>
-      </button>`;}).join('')}</div>
+    <div class="tiles">${tiles}</div>
+    ${att.length ? `<section><h2 class="section-h">Требует тебя · ${attAll}</h2>${att.map(attRow).join('')}${attAll > att.length ? `<button class="lnk" data-tab="today">Все ${attAll} → «Сегодня»</button>` : ''}</section>` : ''}
+    <button class="todaybar" data-tab="today"><b>${today}</b><span>${today ? 'на сегодня' : 'Задач на сегодня нет'}${late ? ` · ${late} просрочено` : ''}</span>${ico('caret').replace('<svg','<svg style="width:18px;height:18px"')}</button>
+    ${nodes.size >= 5 && (backupAge() === null || backupAge() >= 14) ? `<button class="nudge" id="nudge">${backupAge() === null ? 'Копия задач ещё не сохранялась' : `Копия задач сохранялась ${backupAge()} дн. назад`} — сохранить</button>` : ''}
   </div>`;
   $('#capText').value = draft;
 }
 
+/* ---------- folder overview ---------- */
+const expanded = new Set((() => { try { return JSON.parse(lsGet('cg2-exp') || '[]'); } catch { return []; } })());
+const saveExp = () => lsSet('cg2-exp', JSON.stringify([...expanded]));
+function projCard(n, idx, pend){
+  const p = projInfo(n, idx), open = expanded.has(n.id);
+  const sc = p.st && ST[p.st] ? ST[p.st].c : 'var(--line)';
+  const pc = pend.get(n.id) || 0;
+  let body = '';
+  if(open){
+    let rows = '';
+    (function rec(pid, depth){
+      for(const k of idx.get(n.f+'|'+pid) || []){
+        if(k.done && !showDone) continue;
+        const kids = idx.get(n.f+'|'+k.id) || [];
+        rows += taskRow(k, depth, kids.length, k.c, pend);
+        if(!k.c) rec(k.id, depth+1);
+      }
+    })(n.id, 0);
+    body = `<div class="pc-body">${rows || '<div class="empty" style="padding:14px">Пока пусто</div>'}
+      <div class="pc-add"><button class="lnk" data-addchild="${n.id}">＋ Задача</button><button class="lnk" data-edit="${n.id}">Цель и статус</button><button class="lnk" data-showdone>${showDone ? 'Скрыть' : 'Показать'} выполненные</button></div></div>`;
+  }
+  return `<article class="pcard" style="--s:${sc}">
+    <button class="pc-h" data-expand="${n.id}" aria-expanded="${open}"><span class="nm">${esc(n.t)}</span>${stPill(p.st)}${ico('caret','cv')}</button>
+    ${n.goal ? `<div class="pc-goal">🎯 ${esc(n.goal)}</div>` : ''}
+    ${p.pct !== null ? `<div class="prog"><div class="bar" style="--c:${sc}"><i style="width:${p.pct}%"></i></div>${p.pct}%</div>` : ''}
+    ${n.fin ? financeHTML(finance(n, idx)) : ''}
+    ${!n.fin && p.last ? `<div class="pc-line"><b>Последнее</b><span>${esc(p.last.t)}</span></div>` : ''}
+    ${!n.fin && p.next ? `<div class="pc-line"><b>Дальше</b><span>${esc(p.next.t)} <em class="tag ${isLate(p.next) ? 'late' : 'hot'}">${fmtDue(p.next.due)}</em></span></div>` : ''}
+    <div class="pc-f"><span>${p.open.length} открыто${p.late.length ? ` · <b class="red">${p.late.length} просрочено</b>` : ''}</span>${pc ? `<span class="tag hot">✏️ ${pc}</span>` : ''}<span class="spacer"></span>
+      <button class="lnk" data-comment="${n.id}">💬 Комментарий</button><button class="lnk" data-expand="${n.id}">${open ? 'Свернуть' : 'Подробнее'}</button></div>
+    ${body}
+  </article>`;
+}
+function renderBoard(){
+  const f = route.f, idx = index(), pend = pendMap(f);
+  const {goals, projs, loose} = folderParts(f, idx);
+  const att = attention(f).slice(0, 3);
+  const goalH = goals.map(g => { const pct = progress(g, []); return `<button class="goalb" style="--c:${FM[f].color}" data-edit="${g.id}"><span class="eyebrow">Цель направления</span><b>${esc(g.t.replace(/^Цель:\s*/, ''))}</b>${g.note ? `<span class="pc-goal">${esc(trunc(g.note.split('\n')[0], 140))}</span>` : ''}${pct !== null ? `<div class="prog"><div class="bar" style="--c:${FM[f].color}"><i style="width:${pct}%"></i></div>${pct}%</div>` : '<span class="pc-goal">Нажми, чтобы поставить % выполнения</span>'}</button>`; }).join('');
+  const fchats = chats().filter(c => c.folder === f).sort(byAct).slice(0, 5);
+  page.innerHTML = `<div class="wrap wide">
+    ${goalH}
+    ${pulseHTML(pulse(f))}
+    ${att.length ? `<section><h2 class="section-h">Требует тебя · ${att.length}</h2>${att.map(attRow).join('')}</section>` : ''}
+    <section><h2 class="section-h">Проекты · ${projs.length}</h2><div class="pgrid">${projs.map(p => projCard(p, idx, pend)).join('')}</div></section>
+    ${loose.length ? `<section><h2 class="section-h">Без проекта · ${loose.length}</h2>${loose.map(n => taskRow(n, 0, 0, false, pend)).join('')}</section>` : ''}
+    <section><h2 class="section-h">Чаты с Клодом</h2>${fchats.map(chatRow).join('') || '<p class="hintp">Оставь комментарии на карточках (💬) и нажми «Отправить Клоду» — здесь появится чат этой папки.</p>'}</section>
+    <div class="row2"><button class="btn" data-newproj="${f}">＋ Проект</button><button class="btn" data-comment="">💬 Комментарий ко всей папке</button></div>
+  </div>`;
+}
+function renderSendbar(){
+  const el = $('#sendbar');
+  const f = route.view === 'folder' ? route.f : null;
+  const k = f ? draftCount(f) : 0;
+  el.hidden = !k || route.mode === 'map';
+  if(k) el.innerHTML = `<span>✏️ ${k} ${plural(k, 'комментарий', 'комментария', 'комментариев')} в черновике</span><button data-send="${f}">Отправить Клоду</button>`;
+}
+
+/* ---------- chats ---------- */
+function renderChats(){
+  let html = '';
+  for(const f of FOLDERS){
+    const cs = chats().filter(c => c.folder === f.id).sort(byAct), dk = draftCount(f.id);
+    if(!cs.length && !dk) continue;
+    html += `<section><h2 class="section-h" style="display:flex;gap:8px;align-items:center"><span class="dot" style="--c:${f.color}"></span>${esc(f.name)}</h2>
+      ${dk ? `<div class="arow"><span class="cdot draft"></span><span class="t">✏️ ${dk} ${plural(dk, 'комментарий', 'комментария', 'комментариев')} не отправлено</span><button class="btn primary sm" data-send="${f.id}">Отправить</button></div>` : ''}
+      ${cs.map(chatRow).join('')}</section>`;
+  }
+  page.innerHTML = `<div class="wrap">${html || `<div class="empty"><b>Чатов пока нет</b>Открой папку, оставь комментарии на карточках и нажми «Отправить Клоду».</div>`}
+    <p class="hintp">Клод отвечает, когда ты пишешь <b>/shtab</b> в Claude Code на компьютере: он читает только новые сообщения, а ответы появляются здесь.</p></div>`;
+}
+function renderChat(){
+  const c = nodes.get(route.id);
+  if(!c){ page.innerHTML = '<div class="wrap"><div class="empty"><b>Чат не найден</b>Возможно, ещё не синхронизирован</div></div>'; return; }
+  const draft = $('#chatText') ? $('#chatText').value : '';
+  const msgs = (c.msgs || []).map(m => `<div class="msg ${m.w === 'me' ? 'me' : ''}"><span class="who">${m.w === 'me' ? 'Ты' : 'Клод'} · ${fmtTime(m.at)}</span>${m.items && m.items.length ? `<ul>${m.items.map(i => `<li><span class="ref">${esc(i.rt)}</span>${esc(i.t)}</li>`).join('')}</ul>${m.t ? `<div style="margin-top:8px">${esc(m.t)}</div>` : ''}` : esc(m.t)}</div>`).join('');
+  page.innerHTML = `<div class="chatv">
+    <div class="chat-h"><span class="tag ${c.st === 'ans' ? 'ok' : ''}">${CST[c.st] || ''}</span><span class="spacer"></span>${c.st !== 'done' ? `<button class="lnk" data-chatdone="${c.id}">✅ Учтено, закрыть</button>` : `<button class="lnk" data-chatopen="${c.id}">Открыть снова</button>`}</div>
+    ${msgs}
+    ${c.st === 'wait' ? `<p class="hintp">⏳ Ждёт Клода. Напиши <b>/shtab</b> в Claude Code — Клод прочитает только новое и ответит сюда.</p>` : ''}
+    <form class="composer" id="chatForm"><textarea id="chatText" rows="2" placeholder="Ответить или уточнить…"></textarea><button class="btn primary">Отправить</button></form>
+  </div>`;
+  $('#chatText').value = draft;
+  if(c.unread) put({...c, unread:false}, true);
+}
+
+/* ---------- sidebar (desktop) ---------- */
+function renderSide(){
+  const el = $('#side'), r = route;
+  const cur = cond => `aria-current="${!!cond}"`;
+  const tc = tasks().filter(isToday).length, uc = chats().filter(c => c.unread).length;
+  let h = `<div class="brand">Голова</div>
+    <button class="sl" data-tab="home" ${cur(r.view === 'home')}>🏠 <span>Мирас</span></button>
+    <button class="sl" data-tab="today" ${cur(r.view === 'today')}>☀️ <span>Сегодня</span>${tc ? `<span class="n red">${tc}</span>` : ''}</button>
+    <button class="sl" data-tab="chats" ${cur(r.view === 'chats')}>💬 <span>Все чаты</span>${uc ? `<span class="n red">${uc}</span>` : ''}</button>
+    <div class="sh">Папки и чаты</div>`;
+  for(const f of FOLDERS){
+    const pu = pulse(f.id), dk = draftCount(f.id);
+    const cs = chats().filter(c => c.folder === f.id && c.st !== 'done').sort(byAct);
+    h += `<button class="sl" style="--c:${f.color}" data-open="${f.id}" ${cur(r.view === 'folder' && r.f === f.id)}><span class="dot"></span><span>${esc(f.name)}</span>${pu.fire ? `<span class="n red">${pu.fire}</span>` : ''}</button>`;
+    if(dk) h += `<button class="sl chat" data-send="${f.id}"><span class="cdot draft"></span><span class="t">✏️ ${dk} не отправлено → отправить</span></button>`;
+    h += cs.slice(0, 6).map(c => `<button class="sl chat" data-chat="${c.id}" ${cur(r.view === 'chat' && r.id === c.id)}><span class="cdot ${c.unread ? 'ans' : c.st}"></span><span class="t">${esc(c.t)}</span></button>`).join('');
+  }
+  el.innerHTML = h;
+}
+
+/* ---------- comments → one message to Claude ---------- */
+let csheet = null;
+function openComment(f, id){
+  csheet = {f, id: id || ''};
+  const n = id ? nodes.get(id) : null;
+  $('#cCrumb').textContent = [FM[f].name, ...(n ? [...crumb(n), n.t] : ['вся папка'])].map(s => trunc(s, 50)).join(' › ');
+  const k = draftCount(f);
+  $('#cInfo').textContent = k ? `В черновике папки уже ${k}. Собери все комментарии и отправь одним сообщением — так дешевле.` : 'Комментарии копятся в черновике папки и уходят Клоду одним сообщением.';
+  $('#cText').value = ''; $('#csheet').hidden = false;
+  setTimeout(() => $('#cText').focus(), 60);
+}
+function addComment(sendNow){
+  const t = $('#cText').value.trim();
+  if(!csheet) return; if(!t){ $('#cText').focus(); return; }
+  const {f, id} = csheet, n = id ? nodes.get(id) : null;
+  const d = draftOf(f) || {id:'draft-'+f, f:CHAT, folder:f, t:'Черновик', st:'draft', items:[], created:Date.now(), o:0};
+  const rt = n ? [...crumb(n), n.t].map(s => trunc(s, 40)).join(' › ') : 'Вся папка';
+  put({...d, items:[...(d.items || []), {ref:id, rt, t, at:Date.now()}]}, true);
+  $('#csheet').hidden = true; csheet = null;
+  if(sendNow) sendDraft(f); else { toast('Добавлено в черновик папки'); render(); }
+}
+function sendDraft(f){
+  const d = draftOf(f), items = d && d.items || [];
+  if(!items.length) return;
+  const at = Date.now();
+  const title = new Date(at).toLocaleDateString('ru-RU', {day:'numeric', month:'short'}) + ' · ' + trunc(items[0].t, 42) + (items.length > 1 ? ` +${items.length - 1}` : '');
+  const c = {id:newId(), f:CHAT, folder:f, t:title, st:'wait', unread:false, msgs:[{w:'me', at, t:'', items}], created:at, o:at};
+  put({...d, items:[]}, true); put(c, true);
+  toast('Отправлено — чат появился в папке'); go({view:'chat', id:c.id});
+}
+$('#cform').addEventListener('submit', e => { e.preventDefault(); addComment(false); });
+$('#cSendNow').onclick = () => addComment(true);
+$('#cText').addEventListener('keydown', e => { if(e.key === 'Enter' && !e.shiftKey && !e.isComposing){ e.preventDefault(); addComment(false); } });
+$('#csheet').addEventListener('click', e => { if(e.target.closest('[data-closec]')){ $('#csheet').hidden = true; csheet = null; } });
+
 /* ---------- list ---------- */
 let showDone = lsGet('cg2-showdone') !== '0';
 const openRows = new Set();
-function taskRow(n, depth, hasKids, collapsed){
+function taskRow(n, depth, hasKids, collapsed, pend){
   const f = FM[n.f];
   const tags = [];
-  if(n.due) tags.push(`<span class="tag ${isLate(n)?'late':''}">${n.f==='subs'?'до ':''}${fmtDue(n.due)}</span>`);
+  const pc = pend ? pend.get(n.id) || 0 : 0;
+  if(n.st && ST[n.st] && !n.done) tags.push(stPill(n.st));
+  if(n.due) tags.push(`<span class="tag ${isLate(n)?'late':''}">${isSubNode(n)?'до ':''}${fmtDue(n.due)}</span>`);
+  if(n.goal) tags.push(`<span class="tag">🎯 ${esc(n.goal)}</span>`);
+  if(n.pct !== undefined && n.pct !== '' && n.pct !== null) tags.push(`<span class="tag">${+n.pct}%</span>`);
+  if(pc) tags.push(`<span class="tag hot">✏️ ${pc}</span>`);
   if(n.today && !n.done) tags.push(`<span class="tag hot">сегодня</span>`);
   if(n.amt) tags.push(`<span class="tag amt">${esc(n.amt)}</span>`);
   if(n.note) tags.push(`<span class="tag">заметка</span>`);
@@ -510,17 +946,18 @@ function taskRow(n, depth, hasKids, collapsed){
     <button class="mini caret ${hasKids?'':'none'}" data-toggle="${n.id}" aria-expanded="${!collapsed}" aria-label="Свернуть">${ico('caret')}</button>
     <button class="chk" data-done="${n.id}" aria-label="Выполнено">${ico('check')}</button>
     <button class="txt" data-edit="${n.id}"><span class="t">${esc(n.t)}</span>${tags.length?`<div class="meta">${tags.join('')}</div>`:''}</button>
+    <button class="mini" data-comment="${n.id}" aria-label="Комментарий для Клода">${ico('chat')}</button>
     <button class="mini" data-addchild="${n.id}" aria-label="Добавить подзадачу">${ico('plus')}</button>
   </div>`;
 }
 function renderList(){
-  const f = route.f, idx = index();
+  const f = route.f, idx = index(), pend = pendMap(f);
   let html = '';
   (function rec(pid, depth){
     for(const n of (idx.get(f+'|'+(pid||'')) || [])){
       if(n.done && !showDone) continue;
       const kids = idx.get(f+'|'+n.id) || [];
-      html += taskRow(n, depth, kids.length, n.c);
+      html += taskRow(n, depth, kids.length, n.c, pend);
       if(!n.c) rec(n.id, depth+1);
     }
   })(null, 0);
@@ -530,7 +967,7 @@ function renderList(){
       <input id="listText" placeholder="Новая ветка в «${esc(FM[f].name)}»" enterkeyhint="done">
       <button class="btn primary" aria-label="Добавить">${ico('plus').replace('<svg','<svg style="width:20px;height:20px;display:block"')}</button>
     </div></form>
-    <div class="listtools"><button class="toggle" id="showDone">${showDone?'Скрыть':'Показать'} выполненные</button></div>
+    <div class="listtools"><button class="toggle" data-showdone>${showDone?'Скрыть':'Показать'} выполненные</button></div>
     <div>${html || `<div class="empty"><b>Здесь пока пусто</b>Добавь первую ветку сверху или открой «Карту»</div>`}</div>
   </div>`;
   $('#listText').value = draft;
@@ -538,7 +975,8 @@ function renderList(){
 
 /* ---------- today ---------- */
 function renderToday(){
-  const all = [...nodes.values()];
+  const all = tasks();
+  const mine = all.filter(n => !n.done && (n.st === 'me' || n.st === 'fire') && !isLate(n));
   const late = all.filter(isLate).sort((a,b) => a.due.localeCompare(b.due));
   const now = all.filter(n => isToday(n) && !isLate(n)).sort((a,b) => (a.f).localeCompare(b.f));
   const soon = all.filter(n => !n.done && !isToday(n) && n.due && dayDiff(n.due) <= 7).sort((a,b) => a.due.localeCompare(b.due));
@@ -552,7 +990,7 @@ function renderToday(){
     </div>`;
   };
   const sec = (title, arr) => arr.length ? `<section><h2 class="section-h">${title} · ${arr.length}</h2>${arr.map(row).join('')}</section>` : '';
-  const body = sec('Просрочено', late) + sec('На сегодня', now) + sec('Ближайшие 7 дней', soon) + sec('Сделано сегодня', doneToday);
+  const body = sec('Нужно моё решение / горит', mine) + sec('Просрочено', late) + sec('На сегодня', now) + sec('Ближайшие 7 дней', soon) + sec('Сделано сегодня', doneToday);
   page.innerHTML = `<div class="wrap">${body || `<div class="empty"><b>Голова чистая</b>Отметь задачу «На сегодня» или поставь срок — она появится здесь</div>`}</div>`;
 }
 
@@ -594,7 +1032,7 @@ function layout(f){
     const max = n.d===0 ? 200 : n.d===1 ? 210 : 190;
     const r = wrapText(n.t, FONT(n.d), max);
     n.lines = r.lines;
-    n.meta = n.n ? [n.n.amt || '', n.n.due ? (n.n.f==='subs'?'до ':'') + fmtDue(n.n.due) : '', n.n.today && !n.n.done ? 'сегодня' : '', n.n.note ? 'заметка' : ''].filter(Boolean).join(' · ') : '';
+    n.meta = n.n ? [n.n.st && ST[n.n.st] && !n.n.done ? ST[n.n.st].l : '', n.n.amt || '', n.n.due ? (isSubNode(n.n)?'до ':'') + fmtDue(n.n.due) : '', n.n.today && !n.n.done ? 'сегодня' : '', n.n.note ? 'заметка' : ''].filter(Boolean).join(' · ') : '';
     let mw = 0; if(n.meta){ measure.font = '400 11px Onest, sans-serif'; mw = measure.measureText(n.meta).width; }
     n.w = Math.ceil(Math.max(r.w, mw, 24)) + PX*2 + (n.d===0 ? 8 : 0);
     n.h = r.lines.length*LH(n.d) + (n.meta ? 15 : 0) + PY*2 + (n.d===0 ? 6 : 0);
@@ -740,7 +1178,7 @@ function renderActions(){
   const n = nodes.get(selected);
   const hasKids = [...nodes.values()].some(x => x.p === n.id);
   bar.innerHTML = b('child','child','Подзадача') + b('sib','sib','Рядом') + b('done','check', n.done ? 'Вернуть' : 'Готово')
-    + b('today','sun', n.today ? 'Не сегодня' : 'Сегодня') + b('edit','edit','Изменить')
+    + b('comment','chat','Коммент') + b('today','sun', n.today ? 'Не сегодня' : 'Сегодня') + b('edit','edit','Изменить')
     + (hasKids ? b('fold','fold', n.c ? 'Раскрыть' : 'Свернуть') : '') + b('del','trash','Удалить','danger');
 }
 $('#actions').addEventListener('click', e => {
@@ -752,6 +1190,7 @@ $('#actions').addEventListener('click', e => {
   else if(act === 'sib') openNew(f, n.p || null, n.o);
   else if(act === 'done') toggleDone(n.id);
   else if(act === 'today') put({...n, today: !n.today});
+  else if(act === 'comment') openComment(f, n.id);
   else if(act === 'edit') openEdit(n.id);
   else if(act === 'fold') toggleCollapse(n.id);
   else if(act === 'del') removeWithUndo(n.id);
@@ -790,7 +1229,7 @@ const sheetEl = $('#sheet');
 function openSheet(s){
   sheet = s;
   const n = s.id ? nodes.get(s.id) : null;
-  $('#sTitle').textContent = n ? 'Изменить' : s.p ? 'Новая подзадача' : s.quick ? 'Записать мысль' : 'Новая ветка';
+  $('#sTitle').textContent = n ? 'Изменить' : s.proj ? 'Новый проект' : s.p ? 'Новая подзадача' : s.quick ? 'Записать мысль' : 'Новая ветка';
   const par = s.p ? nodes.get(s.p) : null;
   $('#sCrumb').textContent = n ? [FM[n.f].name, ...crumb(n)].join(' › ') : s.quick ? '' : [FM[s.f].name, ...(par ? [...crumb(par), par.t] : [])].join(' › ');
   $('#sCrumb').hidden = !$('#sCrumb').textContent;
@@ -800,12 +1239,18 @@ function openSheet(s){
   $('#fNote').value = n ? (n.note || '') : '';
   $('#fDue').value = n ? (n.due || '') : '';
   $('#fAmt').value = n ? (n.amt || '') : '';
-  $('#fDueL').textContent = s.f === 'subs' ? 'Истекает' : 'Срок';
+  $('#fDueL').textContent = (n ? isSubNode(n) : s.p && nodes.get(s.p) && nodes.get(s.p).fk === 'sub') ? 'Истекает' : 'Срок';
+  s.st = n ? (n.st || '') : ''; renderStChips();
+  $('#fGoal').value = n ? (n.goal || '') : '';
+  $('#fPct').value = n && n.pct !== undefined && n.pct !== null ? n.pct : '';
   s.today = n ? !!n.today : false;
   $('#fToday').setAttribute('aria-pressed', String(s.today));
   $('#fDel').hidden = !n; $('#fMore').hidden = !!n;
   sheetEl.hidden = false;
   setTimeout(() => $('#fText').focus(), 60);
+}
+function renderStChips(){
+  $('#fSt').innerHTML = ['', ...Object.keys(ST)].map(k => `<button type="button" class="chip" style="--c:${k ? ST[k].c : 'var(--muted)'}" data-stv="${k}" aria-pressed="${!!sheet && sheet.st === k}"><span class="dot" style="border-radius:50%"></span>${k ? ST[k].l : 'Статус: авто'}</button>`).join('');
 }
 function closeSheet(){ sheetEl.hidden = true; sheet = null; }
 function openNew(f, p, afterO){ openSheet({f, p, afterO}); }
@@ -813,7 +1258,9 @@ function openEdit(id){ const n = nodes.get(id); if(n) openSheet({id, f:n.f, p:n.
 function saveSheet(more){
   if(!sheet) return;
   const text = $('#fText').value.trim();
-  const fields = {note: $('#fNote').value.trim(), due: $('#fDue').value, amt: $('#fAmt').value.trim(), today: sheet.today};
+  const pv = $('#fPct').value;
+  const fields = {note: $('#fNote').value.trim(), due: $('#fDue').value, amt: $('#fAmt').value.trim(), today: sheet.today, st: sheet.st || '', goal: $('#fGoal').value.trim(), pct: pv === '' ? '' : Math.max(0, Math.min(100, Math.round(+pv) || 0))};
+  if(!sheet.id && sheet.proj) fields.proj = true;
   if(sheet.id){
     const n = nodes.get(sheet.id);
     if(n && text){
@@ -831,7 +1278,7 @@ function saveSheet(more){
   if(sheet.quick){ toast(`Записано в «${FM[sheet.f].name}»`); }
   if(more){
     sheet.afterO = n ? n.o : sheet.afterO;
-    $('#fText').value = ''; $('#fNote').value = ''; $('#fDue').value = ''; $('#fAmt').value = '';
+    $('#fText').value = ''; $('#fNote').value = ''; $('#fDue').value = ''; $('#fAmt').value = ''; $('#fGoal').value = ''; $('#fPct').value = '';
     sheet.today = false; $('#fToday').setAttribute('aria-pressed','false');
     $('#fText').focus();
   } else {
@@ -848,11 +1295,10 @@ $('#scrim').onclick = closeSheet;
 $('#sFolders').addEventListener('click', e => {
   const c = e.target.closest('[data-sf]'); if(!c || !sheet) return;
   sheet.f = c.dataset.sf; if(sheet.quick){ sheet.p = null; }
-  $('#fDueL').textContent = sheet.f === 'subs' ? 'Истекает' : 'Срок';
   $('#sFolders').querySelectorAll('[data-sf]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.sf === sheet.f)));
 });
 addEventListener('keydown', e => {
-  if(e.key === 'Escape'){ if(!sheetEl.hidden) closeSheet(); else if(selected){ selected = null; render(); } }
+  if(e.key === 'Escape'){ if(!$('#csheet').hidden){ $('#csheet').hidden = true; csheet = null; } else if(!sheetEl.hidden) closeSheet(); else if(selected){ selected = null; render(); } }
   if(sheetEl.hidden && route.view==='folder' && route.mode==='map' && selected && document.activeElement === document.body){
     if(e.key === 'Tab'){ e.preventDefault(); openNew(route.f, selected==='root'?null:selected); }
     else if(e.key === 'Enter' && selected !== 'root'){ e.preventDefault(); const n = nodes.get(selected); if(n) openNew(route.f, n.p||null, n.o); }
@@ -865,25 +1311,34 @@ addEventListener('keydown', e => {
 document.addEventListener('click', e => {
   const t = e.target;
   const tab = t.closest('[data-tab]'); if(tab){ go({view: tab.dataset.tab}); return; }
-  const op = t.closest('[data-open]'); if(op){ go({view:'folder', f:op.dataset.open, mode: lsGet('cg2-mode') || 'map'}); return; }
-  const md = t.closest('#seg [data-mode]'); if(md){ lsSet('cg2-mode', md.dataset.mode); go({...route, mode: md.dataset.mode}); return; }
+  const op = t.closest('[data-open]'); if(op){ go({view:'folder', f:op.dataset.open, mode:'board'}); return; }
+  const md = t.closest('#seg [data-mode]'); if(md){ go({...route, mode: md.dataset.mode}); return; }
+  const sv = t.closest('[data-stv]'); if(sv && sheet){ sheet.st = sv.dataset.stv; renderStChips(); return; }
+  const ch = t.closest('[data-chat]'); if(ch){ go({view:'chat', id: ch.dataset.chat}); return; }
+  const sd = t.closest('[data-send]'); if(sd){ sendDraft(sd.dataset.send); return; }
+  const cm = t.closest('[data-comment]'); if(cm){ const id = cm.dataset.comment; const f = id && nodes.get(id) ? nodes.get(id).f : route.f; if(FM[f]) openComment(f, id); return; }
+  const ex = t.closest('[data-expand]'); if(ex){ const id = ex.dataset.expand; expanded.has(id) ? expanded.delete(id) : expanded.add(id); saveExp(); render(); return; }
+  const np = t.closest('[data-newproj]'); if(np){ openSheet({f: np.dataset.newproj, p:null, proj:true}); return; }
+  const cdn = t.closest('[data-chatdone]'); if(cdn){ const c = nodes.get(cdn.dataset.chatdone); if(c){ put({...c, st:'done', unread:false}); toast('Чат закрыт: учтено'); } return; }
+  const cop = t.closest('[data-chatopen]'); if(cop){ const c = nodes.get(cop.dataset.chatopen); if(c) put({...c, st:'ans'}); return; }
   const cf = t.closest('[data-capf]'); if(cf){ captureFolder = cf.dataset.capf; lsSet('cg2-capf', captureFolder); document.querySelectorAll('[data-capf]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.capf === captureFolder))); return; }
   const dn = t.closest('[data-done]'); if(dn){ toggleDone(dn.dataset.done); return; }
   const tg = t.closest('#page [data-toggle]'); if(tg){ toggleCollapse(tg.dataset.toggle); return; }
   const ed = t.closest('#page [data-edit]'); if(ed){ openEdit(ed.dataset.edit); return; }
-  const ac = t.closest('[data-addchild]'); if(ac){ openNew(route.f, ac.dataset.addchild); return; }
+  const ac = t.closest('[data-addchild]'); if(ac){ const pn = nodes.get(ac.dataset.addchild); openNew(pn ? pn.f : route.f, ac.dataset.addchild); return; }
   if(t.closest('#nudge')){ openMenu(); return; }
-  if(t.closest('#showDone')){ showDone = !showDone; lsSet('cg2-showdone', showDone ? '1' : '0'); render(); return; }
+  if(t.closest('[data-showdone]')){ showDone = !showDone; lsSet('cg2-showdone', showDone ? '1' : '0'); render(); return; }
 });
 document.addEventListener('submit', e => {
   if(e.target.id === 'capForm'){ e.preventDefault(); const i = $('#capText'); if(addNode(captureFolder, null, i.value)){ i.value = ''; toast(`Записано в «${FM[captureFolder].name}»`); } }
+  if(e.target.id === 'chatForm'){ e.preventDefault(); const c = nodes.get(route.id), i = $('#chatText'), v = i.value.trim(); if(c && v){ i.value = ''; put({...c, st:'wait', msgs:[...(c.msgs || []), {w:'me', at:Date.now(), t:v}]}); } }
   if(e.target.id === 'listForm'){ e.preventDefault(); const i = $('#listText'); if(addNode(route.f, null, i.value)){ i.value = ''; setTimeout(() => $('#listText') && $('#listText').focus(), 0); } }
 });
-$('#back').onclick = () => go({view:'home'});
+$('#back').onclick = () => { if(route.view === 'chat'){ const c = nodes.get(route.id); go(c && FM[c.folder] ? {view:'folder', f:c.folder, mode:'board'} : {view:'chats'}); } else go({view:'home'}); };
 $('#fab').onclick = () => {
   const f = route.view === 'folder' ? route.f : captureFolder;
   if(route.view === 'folder' && route.mode === 'map') openNew(f, null);
-  else openSheet({f, p:null, quick: route.view !== 'folder'});
+  else openSheet({f, p:null, quick: true});
 };
 
 /* ---------- toast ---------- */
@@ -936,7 +1391,8 @@ function mergeRemote(remote){
   for(const [id, ts] of Object.entries(remote.deleted || {})) if(!tombs[id] || tombs[id] < ts) tombs[id] = ts;
   for(const n of remote.nodes || []){
     if(!n || typeof n.id !== 'string' || typeof n.t !== 'string') continue;
-    if(!FM[n.f]){ const fo = foreign.get(n.id); if(!fo || (n.ts||0) > (fo.ts||0)) foreign.set(n.id, n); continue; }
+    if(OLDF[n.f]) n.f = OLDF[n.f];
+    if(!known(n.f)){ const fo = foreign.get(n.id); if(!fo || (n.ts||0) > (fo.ts||0)) foreign.set(n.id, n); continue; }
     const cur = nodes.get(n.id);
     if(!cur || (n.ts || 0) > (cur.ts || 0)){ nodes.set(n.id, n); changed = true; }
   }
@@ -961,7 +1417,7 @@ async function syncNow(){
       else if(r.status !== 404) throw new Error('http');
       if(mergeRemote(remote)){ saveLocal(); render(); }
       saveTombs();
-      const mine = {app:'chistaya-golova', v:1, appver:'2026-11-13c', updated:new Date().toISOString(), nodes:[...nodes.values(), ...foreign.values()], deleted:tombs};
+      const mine = {app:'golova', v:1, appver:'2026-11-18', updated:new Date().toISOString(), nodes:[...nodes.values(), ...foreign.values()], deleted:tombs};
       if(sig(mine) === sig(remote)) break;
       const p = await gh('PUT', {message:'sync ' + mine.updated, content:b64e(JSON.stringify(mine)), branch:'main', ...(sha ? {sha} : {})});
       if(p.ok) break;
@@ -1025,14 +1481,15 @@ $('#importFile').onchange = async e => {
     if(!d || !Array.isArray(d.nodes)) throw new Error('bad');
     let added = 0, updated = 0;
     for(const n of d.nodes){
-      if(!n || typeof n.id !== 'string' || !FM[n.f] || typeof n.t !== 'string') continue;
+      if(n && OLDF[n.f]) n.f = OLDF[n.f];
+      if(!n || typeof n.id !== 'string' || !known(n.f) || typeof n.t !== 'string') continue;
       const cur = nodes.get(n.id);
       if(!cur){ nodes.set(n.id, n); added++; }
       else if((n.ts||0) > (cur.ts||0)){ nodes.set(n.id, n); updated++; }
     }
     saveLocal(); menuEl.hidden = true; render(); scheduleSync(300);
     toast(`Загружено: новых ${added}, обновлено ${updated}`);
-  } catch { toast('Это не файл копии «Чистой головы»'); }
+  } catch { toast('Это не файл копии «Головы»'); }
 };
 
 /* ---------- offline ---------- */

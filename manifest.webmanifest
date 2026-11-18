@@ -1,7 +1,7 @@
 {
-  "name": "Чистая голова",
+  "name": "Голова",
   "short_name": "Голова",
-  "description": "Задачи и mind map по направлениям: Facebook, трафик, SEO, YouTube, быт, идеи",
+  "description": "Штаб Мираса: Facebook, соцсети, трафик, SEO, личное — статусы, цели, финансы и чаты с Клодом",
   "lang": "ru",
   "start_url": "./",
   "scope": "./",
