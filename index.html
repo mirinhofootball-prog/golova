@@ -181,6 +181,32 @@ main{flex:1;min-height:0;position:relative;display:flex}
 .nudge{font-size:13px;color:var(--muted);text-align:left;text-decoration:underline;padding:0}
 
 .eyebrow{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Brands (Соцсети) */
+.logo{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-family:var(--font-display);font-weight:600;font-size:14px;color:#fff;background:var(--bc,var(--accent));flex:none;letter-spacing:-.02em}
+.logo.sm{width:28px;height:28px;border-radius:9px;font-size:10.5px}
+.pf{width:20px;height:20px;border-radius:6px;display:inline-grid;place-items:center;font-size:11px;font-weight:700;color:#fff;flex:none;line-height:1}
+.pf.yt{background:#e5242b}.pf.tt{background:#111;box-shadow:inset -2px 0 #25f4ee,inset 2px 0 #fe2c55}.pf.ig{background:linear-gradient(45deg,#f9a825,#e1306c,#833ab4)}.pf.th,.pf.x{background:#111}.pf.tg{background:#229ed9}.pf.wa{background:#25d366}.pf.fb{background:#1877f2}
+.accs{display:flex;gap:6px;flex-wrap:wrap}
+.acc{display:inline-flex;align-items:center;gap:6px;padding:3px 10px 3px 3px;border-radius:999px;background:var(--bg);border:1px solid var(--line);font-size:12.5px;font-variant-numeric:tabular-nums}
+.acc b{font-weight:600}
+.kpi{background:var(--bg);border-radius:12px;padding:8px 10px;display:flex;flex-direction:column;gap:6px}
+.kpi .k1{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:12.5px;color:var(--muted)}
+.kpi .k1 b{color:var(--fg);font-family:var(--font-display);font-weight:600;font-size:16px;font-variant-numeric:tabular-nums}
+.cbox{display:flex;gap:6px;align-items:center;border-top:1px dashed var(--line);padding-top:8px}
+.cbox input{flex:1;min-width:0;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:8px 10px;font-size:16px}
+.cbox input:focus{outline:2px solid var(--accent);border-color:transparent}
+.cbox button{width:38px;height:38px;border-radius:10px;background:var(--accent);color:var(--accent-fg);display:grid;place-items:center;flex:none}
+.cbox button svg{width:18px;height:18px}
+.pend{display:flex;flex-direction:column;gap:4px;font-size:13px}
+.pend div{background:color-mix(in srgb,var(--warn) 15%,transparent);border-radius:8px;padding:5px 9px}
+.acrow{display:grid;grid-template-columns:auto 1fr auto;gap:2px 10px;align-items:center;padding:9px 6px;border-bottom:1px solid var(--line);text-align:left;width:100%}
+.acrow .h{font-weight:600;font-size:14px;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.acrow .s{font-size:12px;color:var(--muted);grid-column:2/4}
+.acrow .v{font-family:var(--font-display);font-weight:600;font-variant-numeric:tabular-nums}
+#fMet{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+#fMet input{width:100%;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:8px 10px;font-size:15px;min-width:0}
+#fMet input.w{grid-column:1/-1}
+#fMet span{grid-column:1/-1;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:4px}
 @media (max-width:600px){.top{flex-wrap:wrap}.seg{order:5;width:100%}.seg button{flex:1}}
 /* Sidebar (desktop): folders with pinned Claude chats */
 .side{display:none}
@@ -349,6 +375,17 @@ main{flex:1;min-height:0;position:relative;display:flex}
     <textarea id="fText" rows="2" placeholder="Что сделать или о чём подумать"></textarea>
     <textarea id="fNote" rows="2" placeholder="Заметка, ссылка, детали (необязательно)"></textarea>
     <div class="chips" id="fSt" style="flex-wrap:wrap"></div>
+    <div id="fMet" hidden>
+      <span>Показатели</span>
+      <input id="fKpi" class="w" placeholder="Ключевой показатель (напр. Подписчики, €/мес)">
+      <input id="fKv" inputmode="decimal" placeholder="Сейчас">
+      <input id="fKt" inputmode="decimal" placeholder="Цель">
+      <input id="fSubs" inputmode="numeric" placeholder="Подписчики">
+      <input id="fHandle" placeholder="Ник аккаунта">
+      <input id="fViews" class="w" placeholder="Просмотры / охват">
+      <input id="fCtype" class="w" placeholder="Тип контента">
+      <input id="fAuto" class="w" placeholder="Что делает Клод (автоматизация)">
+    </div>
     <div class="prow">
       <label class="grow" for="fGoal">Цель <input class="grow" id="fGoal" placeholder="напр. CFD ≤ $15 или 1000 подписчиков"></label>
       <label for="fPct">% <input type="number" id="fPct" min="0" max="100" inputmode="numeric" placeholder="авто"></label>
@@ -566,6 +603,7 @@ const isSubNode = n => !!(n && n.p && nodes.get(n.p) && nodes.get(n.p).fk === 's
 function subtree(id, idx, f){ const out = []; (function rec(pid){ for(const k of idx.get(f+'|'+pid) || []){ out.push(k); rec(k.id); } })(id); return out; }
 function progress(n, desc){
   if(n.pct !== undefined && n.pct !== null && n.pct !== '') return Math.max(0, Math.min(100, +n.pct || 0));
+  { const v = num(n.kv), t = num(n.kt); if(v !== null && t) return Math.max(0, Math.min(100, Math.round(v / t * 100))); }
   if(n.fin) return null;
   const t = desc.filter(d => !d.fk); if(!t.length) return null;
   return Math.round(t.filter(d => d.done).length / t.length * 100);
@@ -580,7 +618,7 @@ function autoSt(n, desc){
 }
 const worst = arr => ST_ORDER.find(s => arr.includes(s)) || '';
 function projInfo(n, idx){
-  const desc = subtree(n.id, idx, n.f);
+  const desc = subtree(n.id, idx, n.f).filter(d => !d.plat);
   const open = desc.filter(d => !d.done && !d.fk);
   const late = desc.filter(isLate);
   const next = open.filter(d => d.due).sort((a,b) => a.due.localeCompare(b.due))[0] || null;
@@ -683,6 +721,13 @@ addEventListener('hashchange', () => {
 /* ---------- render ---------- */
 const page = $('#page'), mapEl = $('#map');
 function render(){
+  const keep = {}; document.querySelectorAll('.cbox').forEach(fm => { const v = fm.querySelector('input').value; if(v) keep[fm.dataset.cform] = v; });
+  const focId = document.activeElement && document.activeElement.closest ? (document.activeElement.closest('.cbox') || {dataset:{}}).dataset.cform : null;
+  renderInner();
+  for(const id in keep){ const i = document.querySelector(`[data-cform="${id}"] input`); if(i && !i.value) i.value = keep[id]; }
+  if(focId){ const i = document.querySelector(`[data-cform="${focId}"] input`); if(i) i.focus(); }
+}
+function renderInner(){
   const r = route, inFolder = r.view === 'folder';
   $('#back').hidden = !(inFolder || r.view === 'chat');
   $('#seg').hidden = !inFolder;
@@ -761,10 +806,12 @@ function renderHome(){
     const pu = pulse(f.id), dk = draftCount(f.id);
     const next = infos.flatMap(i => i.next ? [i.next] : []).sort((a,b) => a.due.localeCompare(b.due))[0];
     const fin = projs.find(p => p.fin), fi = fin ? finance(fin, idx) : null;
+    const brands = projs.filter(p => p.brand);
     return `<button class="ftile" style="--c:${f.color}" data-open="${f.id}">
       <div class="ft-h"><h2>${esc(f.name)}</h2>${stPill(st)}</div>
       <div class="ft-goal">${goals.length ? '🎯 ' + esc(goals[0].t.replace(/^Цель:\s*/, '')) : `${projs.length} ${plural(projs.length, 'проект', 'проекта', 'проектов')}: ${esc(trunc(projs.map(p => p.t).join(', '), 90))}`}</div>
       ${pct !== null ? `<div class="prog"><div class="bar" style="--c:${f.color}"><i style="width:${pct}%"></i></div>${pct}%</div>` : ''}
+      ${brands.length ? `<div class="accs">${brands.map(b => logoHTML(b, true)).join('')}</div>` : ''}
       ${fi ? `<div class="ft-goal">Расход/мес: <b>${fmtM(fi.exp)}</b> · Депозит: <b>${fmtM(fi.dep)}</b></div>` : ''}
       <div class="ft-chips">${pu.fire ? `<span class="tag late">${pu.fire} горит</span>` : ''}${pu.me ? `<span class="tag me">${pu.me} решить</span>` : ''}${pu.ans ? `<span class="tag ok">${pu.ans} ответ Клода</span>` : ''}${pu.wait ? `<span class="tag">${pu.wait} ждём</span>` : ''}${dk ? `<span class="tag hot">✏️ ${dk} не отправлено</span>` : ''}${next ? `<span class="tag">Дальше: ${esc(trunc(next.t, 38))} · ${fmtDue(next.due)}</span>` : ''}</div>
     </button>`;
@@ -790,34 +837,45 @@ function renderHome(){
 /* ---------- folder overview ---------- */
 const expanded = new Set((() => { try { return JSON.parse(lsGet('cg2-exp') || '[]'); } catch { return []; } })());
 const saveExp = () => lsSet('cg2-exp', JSON.stringify([...expanded]));
+const PF = {yt:['▶','YouTube'], tt:['♪','TikTok'], ig:['◎','Instagram'], th:['@','Threads'], tg:['✈','Telegram'], x:['X','X'], wa:['✆','WhatsApp'], fb:['f','Facebook']};
+const pfIcon = p => PF[p] ? `<span class="pf ${p}" title="${PF[p][1]}">${PF[p][0]}</span>` : '';
+const num = v => { if(v === '' || v === null || v === undefined) return null; const x = parseFloat(String(v).replace(/\s/g, '').replace(',', '.')); return isFinite(x) ? x : null; };
+const fmtN = v => { const x = num(v); if(x === null) return esc(v || '—'); return x >= 1e6 ? (x/1e6).toLocaleString('ru-RU', {maximumFractionDigits:1}) + ' млн' : x >= 1e4 ? (x/1e3).toLocaleString('ru-RU', {maximumFractionDigits:1}) + ' тыс.' : x.toLocaleString('ru-RU'); };
+const logoHTML = (n, sm) => `<span class="logo ${sm ? 'sm' : ''}" style="--bc:${n.bc || 'var(--accent)'}" title="${esc(n.t)}">${esc(n.logo || n.t.slice(0, 2))}</span>`;
 function projCard(n, idx, pend){
   const p = projInfo(n, idx), open = expanded.has(n.id);
   const sc = p.st && ST[p.st] ? ST[p.st].c : 'var(--line)';
-  const pc = pend.get(n.id) || 0;
+  const kids = idx.get(n.f+'|'+n.id) || [], accs = kids.filter(k => k.plat);
+  const pitems = ((draftOf(n.f) || {}).items || []).filter(i => i.ref === n.id);
   let body = '';
   if(open){
-    let rows = '';
+    let rows = accs.map(a => `<button class="acrow" data-edit="${a.id}">${pfIcon(a.plat)}<span class="h">${esc(a.handle || a.t)}</span><span class="v">${fmtN(a.subs)}</span>${a.views || a.note ? `<span class="s">${esc([a.views, a.note && trunc(a.note, 90)].filter(Boolean).join(' · '))}</span>` : ''}</button>`).join('');
     (function rec(pid, depth){
       for(const k of idx.get(n.f+'|'+pid) || []){
-        if(k.done && !showDone) continue;
-        const kids = idx.get(n.f+'|'+k.id) || [];
-        rows += taskRow(k, depth, kids.length, k.c, pend);
+        if((k.done && !showDone) || (depth === 0 && k.plat)) continue;
+        const kk = idx.get(n.f+'|'+k.id) || [];
+        rows += taskRow(k, depth, kk.length, k.c, pend);
         if(!k.c) rec(k.id, depth+1);
       }
     })(n.id, 0);
-    body = `<div class="pc-body">${rows || '<div class="empty" style="padding:14px">Пока пусто</div>'}
-      <div class="pc-add"><button class="lnk" data-addchild="${n.id}">＋ Задача</button><button class="lnk" data-edit="${n.id}">Цель и статус</button><button class="lnk" data-showdone>${showDone ? 'Скрыть' : 'Показать'} выполненные</button></div></div>`;
+    body = `<div class="pc-body">${n.note ? `<p class="hintp" style="padding:8px 6px 0">${esc(n.note)}</p>` : ''}${rows || '<div class="empty" style="padding:14px">Пока пусто</div>'}
+      <div class="pc-add"><button class="lnk" data-addchild="${n.id}">＋ Задача</button><button class="lnk" data-edit="${n.id}">Цель, показатели, статус</button><button class="lnk" data-showdone>${showDone ? 'Скрыть' : 'Показать'} выполненные</button></div></div>`;
   }
+  const kpi = n.kpi ? `<div class="kpi"><div class="k1"><span>${esc(n.kpi)}</span><span><b>${fmtN(n.kv)}</b>${num(n.kt) ? ` / ${fmtN(n.kt)}` : ' · цель не задана'}</span></div>${p.pct !== null ? `<div class="prog"><div class="bar" style="--c:${n.bc || sc}"><i style="width:${p.pct}%"></i></div>${p.pct}%</div>` : ''}</div>` : '';
   return `<article class="pcard" style="--s:${sc}">
-    <button class="pc-h" data-expand="${n.id}" aria-expanded="${open}"><span class="nm">${esc(n.t)}</span>${stPill(p.st)}${ico('caret','cv')}</button>
+    <button class="pc-h" data-expand="${n.id}" aria-expanded="${open}">${n.brand ? logoHTML(n) : ''}<span class="nm">${esc(n.t)}</span>${stPill(p.st)}${ico('caret','cv')}</button>
+    ${accs.length ? `<div class="accs">${accs.map(a => `<span class="acc">${pfIcon(a.plat)}${esc(a.handle || a.t)}${num(a.subs) !== null ? ` · <b>${fmtN(a.subs)}</b>` : ''}</span>`).join('')}</div>` : ''}
     ${n.goal ? `<div class="pc-goal">🎯 ${esc(n.goal)}</div>` : ''}
-    ${p.pct !== null ? `<div class="prog"><div class="bar" style="--c:${sc}"><i style="width:${p.pct}%"></i></div>${p.pct}%</div>` : ''}
+    ${kpi || (p.pct !== null ? `<div class="prog"><div class="bar" style="--c:${sc}"><i style="width:${p.pct}%"></i></div>${p.pct}%</div>` : '')}
     ${n.fin ? financeHTML(finance(n, idx)) : ''}
+    ${n.ctype ? `<div class="pc-line"><b>Контент</b><span>${esc(n.ctype)}</span></div>` : ''}
+    ${n.auto ? `<div class="pc-line"><b>Клод</b><span>${esc(n.auto)}</span></div>` : ''}
     ${!n.fin && p.last ? `<div class="pc-line"><b>Последнее</b><span>${esc(p.last.t)}</span></div>` : ''}
     ${!n.fin && p.next ? `<div class="pc-line"><b>Дальше</b><span>${esc(p.next.t)} <em class="tag ${isLate(p.next) ? 'late' : 'hot'}">${fmtDue(p.next.due)}</em></span></div>` : ''}
-    <div class="pc-f"><span>${p.open.length} открыто${p.late.length ? ` · <b class="red">${p.late.length} просрочено</b>` : ''}</span>${pc ? `<span class="tag hot">✏️ ${pc}</span>` : ''}<span class="spacer"></span>
-      <button class="lnk" data-comment="${n.id}">💬 Комментарий</button><button class="lnk" data-expand="${n.id}">${open ? 'Свернуть' : 'Подробнее'}</button></div>
+    <div class="pc-f"><span>${p.open.length} открыто${p.late.length ? ` · <b class="red">${p.late.length} просрочено</b>` : ''}</span><span class="spacer"></span><button class="lnk" data-expand="${n.id}">${open ? 'Свернуть' : 'Подробнее'}</button></div>
     ${body}
+    ${pitems.length ? `<div class="pend">${pitems.map(i => `<div>✏️ ${esc(i.t)}</div>`).join('')}</div>` : ''}
+    <form class="cbox" data-cform="${n.id}"><input placeholder="Комментарий для Клода…" enterkeyhint="send" autocomplete="off" aria-label="Комментарий для Клода"><button aria-label="Добавить комментарий">${ico('plus')}</button></form>
   </article>`;
 }
 function renderBoard(){
@@ -903,13 +961,16 @@ function openComment(f, id){
   $('#cText').value = ''; $('#csheet').hidden = false;
   setTimeout(() => $('#cText').focus(), 60);
 }
-function addComment(sendNow){
-  const t = $('#cText').value.trim();
-  if(!csheet) return; if(!t){ $('#cText').focus(); return; }
-  const {f, id} = csheet, n = id ? nodes.get(id) : null;
+function pushComment(f, id, t){
+  const n = id ? nodes.get(id) : null;
   const d = draftOf(f) || {id:'draft-'+f, f:CHAT, folder:f, t:'Черновик', st:'draft', items:[], created:Date.now(), o:0};
   const rt = n ? [...crumb(n), n.t].map(s => trunc(s, 40)).join(' › ') : 'Вся папка';
   put({...d, items:[...(d.items || []), {ref:id, rt, t, at:Date.now()}]}, true);
+}
+function addComment(sendNow){
+  const t = $('#cText').value.trim();
+  if(!csheet) return; if(!t){ $('#cText').focus(); return; }
+  const {f, id} = csheet; pushComment(f, id, t);
   $('#csheet').hidden = true; csheet = null;
   if(sendNow) sendDraft(f); else { toast('Добавлено в черновик папки'); render(); }
 }
@@ -1243,12 +1304,15 @@ function openSheet(s){
   s.st = n ? (n.st || '') : ''; renderStChips();
   $('#fGoal').value = n ? (n.goal || '') : '';
   $('#fPct').value = n && n.pct !== undefined && n.pct !== null ? n.pct : '';
+  $('#fMet').hidden = s.f !== 'social';
+  for(const [el, k] of MET) $('#' + el).value = n && n[k] !== undefined && n[k] !== null ? n[k] : '';
   s.today = n ? !!n.today : false;
   $('#fToday').setAttribute('aria-pressed', String(s.today));
   $('#fDel').hidden = !n; $('#fMore').hidden = !!n;
   sheetEl.hidden = false;
   setTimeout(() => $('#fText').focus(), 60);
 }
+const MET = [['fKpi','kpi'],['fKv','kv'],['fKt','kt'],['fSubs','subs'],['fHandle','handle'],['fViews','views'],['fCtype','ctype'],['fAuto','auto']];
 function renderStChips(){
   $('#fSt').innerHTML = ['', ...Object.keys(ST)].map(k => `<button type="button" class="chip" style="--c:${k ? ST[k].c : 'var(--muted)'}" data-stv="${k}" aria-pressed="${!!sheet && sheet.st === k}"><span class="dot" style="border-radius:50%"></span>${k ? ST[k].l : 'Статус: авто'}</button>`).join('');
 }
@@ -1261,6 +1325,7 @@ function saveSheet(more){
   const pv = $('#fPct').value;
   const fields = {note: $('#fNote').value.trim(), due: $('#fDue').value, amt: $('#fAmt').value.trim(), today: sheet.today, st: sheet.st || '', goal: $('#fGoal').value.trim(), pct: pv === '' ? '' : Math.max(0, Math.min(100, Math.round(+pv) || 0))};
   if(!sheet.id && sheet.proj) fields.proj = true;
+  if(!$('#fMet').hidden) for(const [el, k] of MET){ const v = $('#' + el).value.trim(); fields[k] = ['kv','kt','subs'].includes(k) && v !== '' && num(v) !== null ? num(v) : v; }
   if(sheet.id){
     const n = nodes.get(sheet.id);
     if(n && text){
@@ -1331,6 +1396,11 @@ document.addEventListener('click', e => {
 });
 document.addEventListener('submit', e => {
   if(e.target.id === 'capForm'){ e.preventDefault(); const i = $('#capText'); if(addNode(captureFolder, null, i.value)){ i.value = ''; toast(`Записано в «${FM[captureFolder].name}»`); } }
+  if(e.target.dataset && e.target.dataset.cform !== undefined){
+    e.preventDefault(); const id = e.target.dataset.cform, n = nodes.get(id), i = e.target.querySelector('input'), v = i.value.trim();
+    if(n && v){ i.value = ''; pushComment(n.f, id, v); render(); const ni = document.querySelector(`[data-cform="${id}"] input`); if(ni) ni.focus(); }
+    return;
+  }
   if(e.target.id === 'chatForm'){ e.preventDefault(); const c = nodes.get(route.id), i = $('#chatText'), v = i.value.trim(); if(c && v){ i.value = ''; put({...c, st:'wait', msgs:[...(c.msgs || []), {w:'me', at:Date.now(), t:v}]}); } }
   if(e.target.id === 'listForm'){ e.preventDefault(); const i = $('#listText'); if(addNode(route.f, null, i.value)){ i.value = ''; setTimeout(() => $('#listText') && $('#listText').focus(), 0); } }
 });
