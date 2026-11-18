@@ -14,7 +14,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Голова">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600&family=Unbounded:wght@500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Onest:wght@400;500;600&family=Unbounded:wght@500;600&display=swap">
 <style>
 /* Layout: one-screen app — header / view (map canvas or scrolling page) / bottom tabs. Map = Coggle-like branching tree on a dotted canvas. */
 :root{
@@ -181,28 +181,49 @@ main{flex:1;min-height:0;position:relative;display:flex}
 .nudge{font-size:13px;color:var(--muted);text-align:left;text-decoration:underline;padding:0}
 
 .eyebrow{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-/* Charts (Соцсети) */
-.charts{display:grid;gap:10px;grid-template-columns:minmax(0,1fr)}
+/* Charts (Соцсети) — timeline style: mono labels, thick bars, hatched shortfall, shared goal line */
+.charts{display:grid;gap:12px;grid-template-columns:minmax(0,1fr)}
 @media (min-width:1100px){.charts{grid-template-columns:repeat(3,minmax(0,1fr))}}
-.chart{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 14px 8px;display:flex;flex-direction:column;gap:4px;min-width:0}
-.chart h3{margin:0;font-family:var(--font-display);font-weight:500;font-size:14px}
-.chart .sub{font-size:12px;color:var(--muted)}
-.lg{display:flex;gap:12px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin:2px 0 4px}
-.lg span{display:inline-flex;align-items:center;gap:5px}
-.lg .sw{width:14px;height:8px;border-radius:4px;background:var(--muted)}
-.lg .stk{width:2px;height:12px;background:var(--fg);border-radius:1px}
-.lg .sdm{width:8px;height:8px;transform:rotate(45deg);background:var(--fg)}
-.crow{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"l v" "t t";gap:4px 8px;padding:7px 0;border-top:1px solid var(--line);font-size:12.5px}
-.crow:hover{background:color-mix(in srgb,var(--fg) 4%,transparent)}
-.crow .cl{grid-area:l;display:flex;align-items:center;gap:6px;min-width:0}
-.crow .cl>span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.crow .cv{grid-area:v;text-align:right;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
-.crow .cv b{color:var(--fg);font-weight:600}
-.crow .na{grid-area:t;font-size:11.5px;color:var(--muted)}
-.trk{grid-area:t;position:relative;height:10px;background:var(--surface-2);border-radius:5px}
-.trk .bf{position:absolute;left:0;top:0;bottom:0;border-radius:5px;background:var(--c);min-width:4px}
-.trk .tk{position:absolute;top:-4px;bottom:-4px;width:2px;margin-left:-1px;background:var(--fg);border-radius:1px;box-shadow:0 0 0 2px var(--surface)}
-.trk .dm{position:absolute;top:50%;width:9px;height:9px;margin:-4.5px 0 0 -4.5px;transform:rotate(45deg);background:var(--fg);box-shadow:0 0 0 2px var(--surface)}
+.chart{--mono:'JetBrains Mono',ui-monospace,Consolas,monospace;--goal:#f07a7a;--pr:84px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.ch-h{display:flex;align-items:baseline;gap:8px;padding:0 2px}
+.ch-h h3{margin:0;flex:1;min-width:0;font-family:var(--mono);font-weight:600;font-size:12.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.ch-k{font-family:var(--mono);font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:999px;background:color-mix(in srgb,var(--c) 16%,transparent);color:var(--c);white-space:nowrap}
+.chart .sub{font-size:12px;color:var(--muted);padding:0 2px;margin-top:-4px}
+.tl{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:10px 14px 14px;overflow:hidden;font-family:var(--mono)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tl{background:#141b26}}
+:root[data-theme="dark"] .tl{background:#141b26}
+.tl-in{position:relative}
+.tl-g{position:absolute;left:0;right:var(--pr);top:0;bottom:0;pointer-events:none}
+.tl-g i{position:absolute;top:22px;bottom:0;border-left:1px solid var(--line)}
+.tl-g i span{position:absolute;top:-20px;left:5px;font-size:11px;color:var(--muted);white-space:nowrap}
+.tl-g .gl{border-left:2px solid var(--goal);z-index:4;margin-left:-1px;top:4px}
+.tl-g .gl span{top:-4px;color:var(--goal);font-weight:600;left:6px}
+.tl-rows{position:relative;padding-top:26px;display:flex;flex-direction:column;gap:10px}
+.tl-r{display:block;width:100%;text-align:left;padding:0;border-radius:8px}
+.tl-r:hover .tl-b{filter:brightness(1.12)}
+.tl-l{display:flex;align-items:center;gap:6px;font-family:var(--font-body);font-size:12px;color:var(--fg);margin-bottom:4px;min-width:0}
+.tl-l>span:not(.logo):not(.pf){flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tl-x{font-family:var(--mono);font-size:11.5px;font-weight:600;color:var(--c);white-space:nowrap}
+.tl-l .pf,.tl-ch .pf{width:16px;height:16px;border-radius:5px;font-size:9px}
+.tl-tr{position:relative;display:block;height:22px;margin-right:var(--pr)}
+.tl-b{position:absolute;top:0;bottom:0;border-radius:7px;min-width:6px}
+.tl-b.s{background:var(--c)}
+.tl-b.h{background:repeating-linear-gradient(-45deg,var(--c) 0 5px,color-mix(in srgb,var(--c) 35%,transparent) 5px 10px);border-top-left-radius:0;border-bottom-left-radius:0}
+.tl-b.s.j{border-top-right-radius:0;border-bottom-right-radius:0}
+.tl-b.d{border:1.5px dashed color-mix(in srgb,var(--c) 80%,transparent);background:repeating-linear-gradient(-45deg,color-mix(in srgb,var(--c) 45%,transparent) 0 5px,transparent 5px 10px)}
+.tl-b.d.cut{border-left:0;border-top-left-radius:0;border-bottom-left-radius:0}
+.tl-v{position:absolute;top:50%;transform:translateY(-50%);margin-left:8px;font-size:12px;color:var(--fg);white-space:nowrap;font-variant-numeric:tabular-nums}
+.tl-v em{font-style:normal;color:var(--muted)}
+.tl-v .ov{color:var(--c);font-weight:600}
+.tl-ft{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);padding:0 2px}
+.tl-ch{display:inline-flex;align-items:center;gap:6px;padding:4px 10px 4px 5px;border-radius:999px;border:1px dashed var(--line);background:var(--surface);color:var(--fg);font-size:12px}
+.tl-ch em{font-style:normal;color:var(--muted);font-family:var(--mono);font-size:11px}
+.tl-lg{display:flex;gap:12px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);padding:0 2px;margin-bottom:-2px}
+.tl-lg span{display:inline-flex;align-items:center;gap:5px}
+.tl-lg i{width:16px;height:8px;border-radius:3px;display:inline-block}
+.tl-lg .k-s{background:var(--ok)}.tl-lg .k-w{background:var(--warn)}.tl-lg .k-d{background:var(--danger)}
+.tl-lg .k-h{border:1px dashed var(--warn);background:repeating-linear-gradient(-45deg,var(--warn) 0 3px,transparent 3px 6px)}
+.tl-lg .k-g{width:2px;height:12px;background:#f07a7a;border-radius:1px}
 .up{color:var(--ok);font-weight:600}.dn{color:var(--danger);font-weight:600}.mid{color:var(--warn);font-weight:600}
 .logo.xs{width:18px;height:18px;border-radius:5px;font-size:7.5px;letter-spacing:0}
 /* Brands (Соцсети) */
@@ -906,50 +927,71 @@ function projCard(n, idx, pend){
     <form class="cbox" data-cform="${n.id}"><input placeholder="Комментарий для Клода…" enterkeyhint="send" autocomplete="off" aria-label="Комментарий для Клода"><button aria-label="Добавить комментарий">${ico('plus')}</button></form>
   </article>`;
 }
-/* ---------- charts for Соцсети ---------- */
+/* ---------- charts for Соцсети (timeline style) ---------- */
+// Every row is scaled to its own target (goal / usual / plan = 100%), so one vertical line marks the target for all rows.
 function socialCharts(idx){
   const brands = (idx.get('social|') || []).filter(n => n.brand);
   const rows = brands.flatMap(b => (idx.get('social|' + b.id) || []).filter(a => a.plat).map(a => ({a, b})));
   if(!rows.length) return '';
-  const lab = r => `<span class="cl">${logoHTML(r.b, true).replace('logo sm', 'logo xs')}${pfIcon(r.a.plat)}<span>${esc(r.a.handle || r.a.t)}</span></span>`;
+  const pc = x => Math.round(x * 100) + '%';
+  const fK = v => v >= 1e6 ? (v/1e6).toLocaleString('ru-RU', {maximumFractionDigits:1}) + 'M' : v >= 1e3 ? (v/1e3).toLocaleString('ru-RU', {maximumFractionDigits:v >= 1e4 ? 0 : 1}) + 'K' : String(Math.round(v));
+  const lab = (r, st) => `<span class="tl-l">${logoHTML(r.b, true).replace('logo sm', 'logo xs')}${pfIcon(r.a.plat)}<span>${esc(r.a.handle || r.a.t)}</span><b class="tl-x">${st}</b></span>`;
   const tip = (r, txt) => esc(r.b.t + ' · ' + (PF[r.a.plat] ? PF[r.a.plat][1] : '') + ' ' + (r.a.handle || '') + ' — ' + txt + (r.a.mnote ? ' (' + r.a.mnote + ')' : ''));
-  const row = (r, track, val, t) => `<div class="crow" title="${tip(r, t)}" data-edit="${r.a.id}">${lab(r)}<span class="cv">${val}</span>${track}</div>`;
-  const na = '<span class="na">нет данных — Клод внесёт при разборе бренда</span>';
+  const chip = (r, v) => `<button class="tl-ch" data-edit="${r.a.id}" title="${tip(r, v || 'нет данных')}">${logoHTML(r.b, true).replace('logo sm', 'logo xs')}${pfIcon(r.a.plat)}${esc(r.a.handle || r.a.t)}${v ? ` <em>${esc(v)}</em>` : ''}</button>`;
+  const col = k => k >= 1 ? 'var(--ok)' : k >= .5 ? 'var(--warn)' : 'var(--danger)';
+  const plot = (items, glab, unit) => {
+    const mx = Math.min(2, Math.max(1.25, ...items.map(i => i.k * 1.05)));
+    const x = k => Math.min(Math.max(k, 0), mx) / mx * 100;
+    const ticks = [0, .5, 1.5, 2].filter(t => t <= mx + 1e-9).map(t => `<i style="left:${x(t)}%"><span>${t ? pc(t) : '0'}</span></i>`).join('');
+    const bars = items.map(i => {
+      const k = Math.max(0, i.k);
+      let b;
+      if(k < 1) b = (k > 0 ? `<i class="tl-b s" style="left:0;width:${x(k)}%"></i>` : '') + `<i class="tl-b d ${k > 0 ? 'cut' : ''}" style="left:${x(k)}%;width:${x(1) - x(k)}%"></i>`;
+      else b = `<i class="tl-b s ${k > 1 ? 'j' : ''}" style="left:0;width:${x(1)}%"></i>` + (k > 1 ? `<i class="tl-b h" style="left:${x(1)}%;width:${x(k) - x(1)}%"></i>` : '');
+      const st = unit === 'x' ? '×' + i.k.toLocaleString('ru-RU', {maximumFractionDigits:1}) : pc(i.k);
+      return `<button class="tl-r" style="--c:${i.c}" data-edit="${i.r.a.id}" title="${tip(i.r, i.t)}">${lab(i.r, st)}<span class="tl-tr">${b}<span class="tl-v" style="left:${Math.max(x(k), x(1))}%">${i.val}</span></span></button>`;
+    }).join('');
+    return `<div class="tl"><div class="tl-in"><div class="tl-g">${ticks}<i class="gl" style="left:${x(1)}%"><span>${glab}</span></i></div><div class="tl-rows">${bars}</div></div></div>`;
+  };
+  const card = (h, sub, items, glab, unit, okHi, rest, restLab) => {
+    const ok = items.filter(i => i.k >= okHi).length;
+    const kc = !items.length ? 'var(--muted)' : ok === items.length ? 'var(--ok)' : ok * 2 >= items.length ? 'var(--warn)' : 'var(--danger)';
+    return `<section class="chart">
+      <div class="ch-h"><h3>${h}</h3><span class="ch-k" style="--c:${kc}">${items.length ? `${ok} из ${items.length} в норме` : 'нет данных'}</span></div>
+      <div class="sub">${sub}</div>
+      ${items.length ? plot(items, glab, unit) : ''}
+      ${rest.length ? `<div class="tl-ft">${restLab}: ${rest.join('')}</div>` : ''}
+    </section>`;
+  };
   // 1. Подписчики: прирост за неделю против недельной цели
-  const c1a = rows.map(r => {
-    const sN = num(r.a.subs); if(sN === null) return '';
-    const g = sN - (num(r.a.w0) ?? sN), wg = num(r.a.wg), mx = Math.max(Math.abs(g), wg || 0, 1) * 1.15;
-    const stt = wg ? (g >= wg ? '<span class="up">▲ в плане</span>' : g >= wg / 2 ? '<span class="mid">● отстаём</span>' : '<span class="dn">▼ ниже цели</span>') : '';
-    const tr = `<div class="trk">${g > 0 ? `<i class="bf" style="width:${g/mx*100}%;--c:${r.b.bc}"></i>` : ''}${wg ? `<i class="tk" style="left:${wg/mx*100}%"></i>` : ''}</div>`;
-    const v = `<b>${fmtN(sN)}</b> · ${g >= 0 ? '+' : '−'}${fmtN(Math.abs(g))}${wg ? ` из +${fmtN(wg)}` : ''} ${stt}`;
-    return row(r, tr, v, `подписчиков ${fmtN(sN)}, за неделю ${g >= 0 ? '+' : ''}${g}${wg ? ', цель недели +' + wg : ', цель недели не задана'}`);
+  const i1 = [], r1 = [];
+  rows.forEach(r => {
+    const sN = num(r.a.subs), wg = num(r.a.wg);
+    if(sN === null){ r1.push(chip(r, '')); return; }
+    const g = sN - (num(r.a.w0) ?? sN);
+    if(!wg){ r1.push(chip(r, (g >= 0 ? '+' : '−') + fmtN(Math.abs(g)))); return; }
+    i1.push({r, k: g / wg, c: col(g / wg), val: `${g >= 0 ? '+' : '−'}${fK(Math.abs(g))}<em> / +${fK(wg)}</em>`, t: `подписчиков ${fmtN(sN)}, за неделю ${g >= 0 ? '+' : ''}${g}, цель недели +${wg}`});
   });
   // 2. Просмотры: среднее 5 последних против обычного
-  const c2a = rows.map(r => {
+  const i2 = [], r2 = [];
+  rows.forEach(r => {
     const a5 = num(r.a.avg5), av = num(r.a.avgv);
-    if(a5 === null && av === null) return '';
-    const mx = Math.max(a5 || 0, av || 0, 1) * 1.15;
-    const k = a5 !== null && av ? a5 / av : null;
-    const stt = k === null ? '' : k >= 1.1 ? `<span class="up">▲ ×${k.toLocaleString('ru-RU', {maximumFractionDigits:1})}</span>` : k >= 0.8 ? '<span class="mid">● как обычно</span>' : `<span class="dn">▼ ×${k.toLocaleString('ru-RU', {maximumFractionDigits:1})}</span>`;
-    const tr = `<div class="trk">${a5 !== null ? `<i class="bf" style="width:${a5/mx*100}%;--c:${r.b.bc}"></i>` : ''}${av ? `<i class="dm" style="left:${av/mx*100}%"></i>` : ''}</div>`;
-    return row(r, tr, `<b>${a5 !== null ? fmtN(a5) : '—'}</b> vs ${av ? fmtN(av) : '—'} ${stt}`, `5 последних в среднем ${a5 ?? '—'}, обычно ${av ?? '—'}`);
+    if(a5 === null || !av){ r2.push(chip(r, a5 !== null ? '5 посл. ' + fmtN(a5) : av ? 'обычно ' + fmtN(av) : '')); return; }
+    const k = a5 / av;
+    i2.push({r, k, c: k >= 1 ? 'var(--ok)' : k >= .8 ? 'var(--f-subs)' : k >= .5 ? 'var(--warn)' : 'var(--danger)', val: `${fK(a5)}<em> / ${fK(av)}</em>`, t: `5 последних в среднем ${a5}, обычно ${av}`});
   });
-  // 3. Публикации за 7 дней против плана (работает ли контент-ферма)
-  const pmx = Math.max(7, ...rows.map(r => Math.max(num(r.a.posts7) || 0, num(r.a.plan7) || 0))) * 1.05;
-  const c3a = rows.map(r => {
-    const p = num(r.a.posts7), pl = num(r.a.plan7);
-    if(p === null && !pl) return '';
-    const stt = pl ? (p >= pl ? '<span class="up">▲ по плану</span>' : p >= pl / 2 ? '<span class="mid">● отстаём</span>' : '<span class="dn">▼ мало</span>') : '<span>пауза</span>';
-    const tr = `<div class="trk">${p ? `<i class="bf" style="width:${p/pmx*100}%;--c:${r.b.bc}"></i>` : ''}${pl ? `<i class="tk" style="left:${pl/pmx*100}%"></i>` : ''}</div>`;
-    return row(r, tr, `<b>${p ?? 0}</b>${pl ? ' / ' + pl : ''} ${stt}`, `опубликовано ${p ?? 0} за 7 дней${pl ? ', план ' + pl : ', плана нет'}`);
+  // 3. Публикации за 7 дней против плана
+  const i3 = [], r3 = [];
+  rows.forEach(r => {
+    const p = num(r.a.posts7) ?? 0, pl = num(r.a.plan7);
+    if(!pl){ r3.push(chip(r, p ? p + ' шт.' : 'пауза')); return; }
+    i3.push({r, k: p / pl, c: col(p / pl), val: `${p}<em> / ${pl}</em>`, t: `опубликовано ${p} за 7 дней, план ${pl}`});
   });
-  const miss = arr => { const k = rows.length - arr.filter(Boolean).length; return k ? `<div class="crow"><span class="na" style="grid-area:l">ещё ${k} ${plural(k, 'аккаунт', 'аккаунта', 'аккаунтов')} без данных — внесём при разборе брендов</span></div>` : ''; };
-  const c1 = c1a.join('') + miss(c1a), c2 = c2a.join('') + miss(c2a), c3 = c3a.join('') + miss(c3a);
-  const card = (h, sub, lg, body) => `<section class="chart"><h3>${h}</h3><div class="sub">${sub}</div><div class="lg">${lg}</div>${body}</section>`;
-  return `<div class="charts">
-    ${card('Подписчики за неделю', 'Прирост с понедельника против цели недели', '<span><i class="sw"></i>прирост</span><span><i class="stk"></i>цель недели</span>', c1)}
-    ${card('Просмотры: 5 последних', 'Среднее по 5 последним публикациям против обычного', '<span><i class="sw"></i>5 последних</span><span><i class="sdm"></i>обычно</span>', c2)}
-    ${card('Публикации за 7 дней', 'Работает ли контент-ферма: факт против плана', '<span><i class="sw"></i>опубликовано</span><span><i class="stk"></i>план</span>', c3)}
+  return `<div class="tl-lg"><span><i class="k-s"></i>в плане</span><span><i class="k-w"></i>отстаём</span><span><i class="k-d"></i>меньше половины</span><span><i class="k-h"></i>недобор до цели</span><span><i class="k-g"></i>цель = 100%</span></div>
+  <div class="charts">
+    ${card('Подписчики · неделя', 'Прирост с понедельника, красная линия — цель недели', i1, 'цель', '%', 1, r1, 'без цели')}
+    ${card('Просмотры · 5 последних', 'Среднее 5 последних против обычного уровня', i2, 'обычно', 'x', .8, r2, 'мало данных')}
+    ${card('Публикации · 7 дней', 'Работает ли контент-ферма: факт против плана', i3, 'план', '%', 1, r3, 'без плана')}
   </div>`;
 }
 function renderBoard(){
