@@ -181,6 +181,30 @@ main{flex:1;min-height:0;position:relative;display:flex}
 .nudge{font-size:13px;color:var(--muted);text-align:left;text-decoration:underline;padding:0}
 
 .eyebrow{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Charts (Соцсети) */
+.charts{display:grid;gap:10px;grid-template-columns:minmax(0,1fr)}
+@media (min-width:1100px){.charts{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.chart{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 14px 8px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.chart h3{margin:0;font-family:var(--font-display);font-weight:500;font-size:14px}
+.chart .sub{font-size:12px;color:var(--muted)}
+.lg{display:flex;gap:12px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin:2px 0 4px}
+.lg span{display:inline-flex;align-items:center;gap:5px}
+.lg .sw{width:14px;height:8px;border-radius:4px;background:var(--muted)}
+.lg .stk{width:2px;height:12px;background:var(--fg);border-radius:1px}
+.lg .sdm{width:8px;height:8px;transform:rotate(45deg);background:var(--fg)}
+.crow{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"l v" "t t";gap:4px 8px;padding:7px 0;border-top:1px solid var(--line);font-size:12.5px}
+.crow:hover{background:color-mix(in srgb,var(--fg) 4%,transparent)}
+.crow .cl{grid-area:l;display:flex;align-items:center;gap:6px;min-width:0}
+.crow .cl>span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.crow .cv{grid-area:v;text-align:right;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.crow .cv b{color:var(--fg);font-weight:600}
+.crow .na{grid-area:t;font-size:11.5px;color:var(--muted)}
+.trk{grid-area:t;position:relative;height:10px;background:var(--surface-2);border-radius:5px}
+.trk .bf{position:absolute;left:0;top:0;bottom:0;border-radius:5px;background:var(--c);min-width:4px}
+.trk .tk{position:absolute;top:-4px;bottom:-4px;width:2px;margin-left:-1px;background:var(--fg);border-radius:1px;box-shadow:0 0 0 2px var(--surface)}
+.trk .dm{position:absolute;top:50%;width:9px;height:9px;margin:-4.5px 0 0 -4.5px;transform:rotate(45deg);background:var(--fg);box-shadow:0 0 0 2px var(--surface)}
+.up{color:var(--ok);font-weight:600}.dn{color:var(--danger);font-weight:600}.mid{color:var(--warn);font-weight:600}
+.logo.xs{width:18px;height:18px;border-radius:5px;font-size:7.5px;letter-spacing:0}
 /* Brands (Соцсети) */
 .logo{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-family:var(--font-display);font-weight:600;font-size:14px;color:#fff;background:var(--bc,var(--accent));flex:none;letter-spacing:-.02em}
 .logo.sm{width:28px;height:28px;border-radius:9px;font-size:10.5px}
@@ -882,6 +906,52 @@ function projCard(n, idx, pend){
     <form class="cbox" data-cform="${n.id}"><input placeholder="Комментарий для Клода…" enterkeyhint="send" autocomplete="off" aria-label="Комментарий для Клода"><button aria-label="Добавить комментарий">${ico('plus')}</button></form>
   </article>`;
 }
+/* ---------- charts for Соцсети ---------- */
+function socialCharts(idx){
+  const brands = (idx.get('social|') || []).filter(n => n.brand);
+  const rows = brands.flatMap(b => (idx.get('social|' + b.id) || []).filter(a => a.plat).map(a => ({a, b})));
+  if(!rows.length) return '';
+  const lab = r => `<span class="cl">${logoHTML(r.b, true).replace('logo sm', 'logo xs')}${pfIcon(r.a.plat)}<span>${esc(r.a.handle || r.a.t)}</span></span>`;
+  const tip = (r, txt) => esc(r.b.t + ' · ' + (PF[r.a.plat] ? PF[r.a.plat][1] : '') + ' ' + (r.a.handle || '') + ' — ' + txt + (r.a.mnote ? ' (' + r.a.mnote + ')' : ''));
+  const row = (r, track, val, t) => `<div class="crow" title="${tip(r, t)}" data-edit="${r.a.id}">${lab(r)}<span class="cv">${val}</span>${track}</div>`;
+  const na = '<span class="na">нет данных — Клод внесёт при разборе бренда</span>';
+  // 1. Подписчики: прирост за неделю против недельной цели
+  const c1a = rows.map(r => {
+    const sN = num(r.a.subs); if(sN === null) return '';
+    const g = sN - (num(r.a.w0) ?? sN), wg = num(r.a.wg), mx = Math.max(Math.abs(g), wg || 0, 1) * 1.15;
+    const stt = wg ? (g >= wg ? '<span class="up">▲ в плане</span>' : g >= wg / 2 ? '<span class="mid">● отстаём</span>' : '<span class="dn">▼ ниже цели</span>') : '';
+    const tr = `<div class="trk">${g > 0 ? `<i class="bf" style="width:${g/mx*100}%;--c:${r.b.bc}"></i>` : ''}${wg ? `<i class="tk" style="left:${wg/mx*100}%"></i>` : ''}</div>`;
+    const v = `<b>${fmtN(sN)}</b> · ${g >= 0 ? '+' : '−'}${fmtN(Math.abs(g))}${wg ? ` из +${fmtN(wg)}` : ''} ${stt}`;
+    return row(r, tr, v, `подписчиков ${fmtN(sN)}, за неделю ${g >= 0 ? '+' : ''}${g}${wg ? ', цель недели +' + wg : ', цель недели не задана'}`);
+  });
+  // 2. Просмотры: среднее 5 последних против обычного
+  const c2a = rows.map(r => {
+    const a5 = num(r.a.avg5), av = num(r.a.avgv);
+    if(a5 === null && av === null) return '';
+    const mx = Math.max(a5 || 0, av || 0, 1) * 1.15;
+    const k = a5 !== null && av ? a5 / av : null;
+    const stt = k === null ? '' : k >= 1.1 ? `<span class="up">▲ ×${k.toLocaleString('ru-RU', {maximumFractionDigits:1})}</span>` : k >= 0.8 ? '<span class="mid">● как обычно</span>' : `<span class="dn">▼ ×${k.toLocaleString('ru-RU', {maximumFractionDigits:1})}</span>`;
+    const tr = `<div class="trk">${a5 !== null ? `<i class="bf" style="width:${a5/mx*100}%;--c:${r.b.bc}"></i>` : ''}${av ? `<i class="dm" style="left:${av/mx*100}%"></i>` : ''}</div>`;
+    return row(r, tr, `<b>${a5 !== null ? fmtN(a5) : '—'}</b> vs ${av ? fmtN(av) : '—'} ${stt}`, `5 последних в среднем ${a5 ?? '—'}, обычно ${av ?? '—'}`);
+  });
+  // 3. Публикации за 7 дней против плана (работает ли контент-ферма)
+  const pmx = Math.max(7, ...rows.map(r => Math.max(num(r.a.posts7) || 0, num(r.a.plan7) || 0))) * 1.05;
+  const c3a = rows.map(r => {
+    const p = num(r.a.posts7), pl = num(r.a.plan7);
+    if(p === null && !pl) return '';
+    const stt = pl ? (p >= pl ? '<span class="up">▲ по плану</span>' : p >= pl / 2 ? '<span class="mid">● отстаём</span>' : '<span class="dn">▼ мало</span>') : '<span>пауза</span>';
+    const tr = `<div class="trk">${p ? `<i class="bf" style="width:${p/pmx*100}%;--c:${r.b.bc}"></i>` : ''}${pl ? `<i class="tk" style="left:${pl/pmx*100}%"></i>` : ''}</div>`;
+    return row(r, tr, `<b>${p ?? 0}</b>${pl ? ' / ' + pl : ''} ${stt}`, `опубликовано ${p ?? 0} за 7 дней${pl ? ', план ' + pl : ', плана нет'}`);
+  });
+  const miss = arr => { const k = rows.length - arr.filter(Boolean).length; return k ? `<div class="crow"><span class="na" style="grid-area:l">ещё ${k} ${plural(k, 'аккаунт', 'аккаунта', 'аккаунтов')} без данных — внесём при разборе брендов</span></div>` : ''; };
+  const c1 = c1a.join('') + miss(c1a), c2 = c2a.join('') + miss(c2a), c3 = c3a.join('') + miss(c3a);
+  const card = (h, sub, lg, body) => `<section class="chart"><h3>${h}</h3><div class="sub">${sub}</div><div class="lg">${lg}</div>${body}</section>`;
+  return `<div class="charts">
+    ${card('Подписчики за неделю', 'Прирост с понедельника против цели недели', '<span><i class="sw"></i>прирост</span><span><i class="stk"></i>цель недели</span>', c1)}
+    ${card('Просмотры: 5 последних', 'Среднее по 5 последним публикациям против обычного', '<span><i class="sw"></i>5 последних</span><span><i class="sdm"></i>обычно</span>', c2)}
+    ${card('Публикации за 7 дней', 'Работает ли контент-ферма: факт против плана', '<span><i class="sw"></i>опубликовано</span><span><i class="stk"></i>план</span>', c3)}
+  </div>`;
+}
 function renderBoard(){
   const f = route.f, idx = index(), pend = pendMap(f);
   const {goals, projs, loose} = folderParts(f, idx);
@@ -891,6 +961,7 @@ function renderBoard(){
   page.innerHTML = `<div class="wrap wide">
     ${goalH}
     ${pulseHTML(pulse(f))}
+    ${f === 'social' ? socialCharts(idx) : ''}
     ${att.length ? `<section><h2 class="section-h">Требует тебя · ${att.length}</h2>${att.map(attRow).join('')}</section>` : ''}
     <section><h2 class="section-h">Проекты · ${projs.length}</h2><div class="pgrid">${projs.map(p => projCard(p, idx, pend)).join('')}</div></section>
     ${loose.length ? `<section><h2 class="section-h">Без проекта · ${loose.length}</h2>${loose.map(n => taskRow(n, 0, 0, false, pend)).join('')}</section>` : ''}
