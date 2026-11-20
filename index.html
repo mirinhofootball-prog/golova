@@ -493,6 +493,7 @@ main{flex:1;min-height:0;position:relative;display:flex}
 </div>
 <div class="toast" id="toast" hidden></div>
 
+<script src="keystore.js"></script>
 <script>
 (() => {
 const $ = s => document.querySelector(s);
@@ -1561,6 +1562,7 @@ const SYNC_URL = 'https://api.github.com/repos/mirinhofootball-prog/golova-data/
 let syncToken = lsGet('cg2-token') || '';
 let syncing = false, syncAgain = false, syncTimer = null, syncErr = '';
 let lastSync = +lsGet('cg2-lastsync') || 0;
+GKey.restore().then(v => { if(v && !syncToken){ syncToken = v; syncNow(); } });
 function scheduleSync(delay = 3000){
   if(!syncToken) return;
   clearTimeout(syncTimer); syncTimer = setTimeout(syncNow, delay);
@@ -1634,10 +1636,10 @@ function renderSyncInfo(){
 $('#tokenSave').onclick = () => {
   const v = $('#tokenInput').value.trim();
   if(!/^(github_pat_|ghp_)[A-Za-z0-9_]{20,}$/.test(v)){ toast('Это не похоже на ключ GitHub'); return; }
-  syncToken = v; lsSet('cg2-token', v); $('#tokenInput').value = '';
+  syncToken = v; GKey.set(v); $('#tokenInput').value = '';
   syncNow();
 };
-$('#tokenDrop').onclick = () => { syncToken = ''; lsSet('cg2-token', ''); syncErr = ''; renderSyncInfo(); };
+$('#tokenDrop').onclick = () => { syncToken = ''; GKey.clear(); syncErr = ''; renderSyncInfo(); };
 $('#syncNowBtn').onclick = () => syncNow();
 addEventListener('online', () => scheduleSync(300));
 document.addEventListener('visibilitychange', () => { if(document.visibilityState === 'visible') scheduleSync(300); });

@@ -106,6 +106,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font:13px/1.
 <div id="card"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="keystore.js"></script>
 <script>
 // ===== Данные: снимок golova-data/tasks.json, 20.11.2026 =====
 const labels=[];const LBOX=document.getElementById('labels');
@@ -532,7 +533,7 @@ function showKeyForm(){
   const f=document.createElement('form');f.id='keyf';f.style.cssText='display:flex;gap:6px;padding:0 12px 10px';
   f.innerHTML='<input id="keyi" type="password" placeholder="Ключ GitHub из Головы (github_pat_…)" style="flex:1;border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:8px;padding:7px 9px;font:inherit"><button style="border:0;background:var(--ink);color:var(--panel);border-radius:8px;padding:0 10px;cursor:pointer">OK</button>';
   f.onsubmit=e=>{e.preventDefault();const v=document.getElementById('keyi').value.trim();if(!/^(github_pat_|ghp_)[A-Za-z0-9_]{20,}$/.test(v)){addMsg('sys','Это не похоже на ключ GitHub',null,false);return;}
-    try{localStorage.setItem('cg2-token',v)}catch(e){};
+    GKey.set(v);
     token=v;addMsg('sys','Проверяю ключ…',null,false);
     loadLive().then(()=>{clearTeams();buildTeams();teams.forEach(teamLoop);f.remove();
       const b=document.getElementById('demo');b.textContent='ЖИВОЕ';b.style.background='#10b981';setInterval(poll,20000);})
@@ -667,7 +668,7 @@ document.getElementById('legend').innerHTML=Object.values(ROLES).map(r=>`<span><
 // ===== Цикл =====
 function initView(){resize();const f=fitView();camera.zoom=f.zoom;camera.updateProjectionMatrix();target.copy(f.t);placeCam();}
 initView();if(!cv.clientHeight)requestAnimationFrame(initView);
-boot();
+GKey.restore().then(v=>{if(v)token=v;boot();});
 let last=performance.now(),clock=0;
 function frame(now){
   const rdt=Math.min(0.1,(now-last)/1000);last=now;clock+=rdt;
