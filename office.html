@@ -131,6 +131,7 @@ const FB_ROLES={
  tester:{...ROLES.tester,n:'Контроль',can:'Перепроверяет креатив и черновик РК по чек-листу; следит, идём ли к цели (CFD, ROI, стоп-правила)',cant:'Править самому — возвращает на переделку'},
  lead:{...ROLES.lead,can:'Раздаёт задачи, решает в рамках плана и стоп-правил, отчитывается COO',cant:'Деньги, бюджеты, новые GEO/офферы — только через COO → Мирас'},
 };
+FB_ROLES.reporter={n:'Отчёт',c:'#06b6d4',can:'Каждый день собирает отчёт: спенд, реги, FTD, CFD, ROI по GEO и креативам (fb-stats, fb-results); формат «сейчас / цель / результат / шаг» — тимлиду и COO',cant:'Решать, что выключать или масштабировать; трогать кампании'};
 const FB_SEATS=['analyst','creator','editor','launcher','tester'];
 const SEAT_ORDER=['analyst','creator','editor','tester','uploader'];
 
@@ -260,7 +261,7 @@ plant(-7.25,0,6.0,1);plant(8.2,0,-4.5,1);
 
 // ---------- Остальные комнаты вокруг, на разной высоте, с лестницами ----------
 const OTHER=[
- {name:'FACEBOOK',sub:'6 ботов · тимлид → COO',fb:true,x:-12,y:1.6,z:-0.5,w:6.5,d:5,top:'#dbe7fb'},
+ {name:'FACEBOOK',sub:'7 ботов · тимлид → COO',fb:true,x:-12,y:1.6,z:-0.5,w:6.5,d:5,top:'#dbe7fb'},
  {name:'ТРАФИК',sub:'команда не собрана',x:-12,y:3.2,z:-9.5,w:6.5,d:5,top:'#fde7d2'},
  {name:'SEO',sub:'команда не собрана',x:1,y:1.6,z:-10,w:6.5,d:5,top:'#dcf2df'},
  {name:'ЛИЧНОЕ',sub:'команда не собрана',x:12.8,y:-1.6,z:-1,w:6.5,d:5,top:'#f8dde7'},
@@ -292,7 +293,13 @@ const fbTeam={b:{id:'fb',name:'Facebook',logo:'FB',color:'#1877f2',active:true,s
   box(3.6,0.06,0.7,'#ffffff',cx-0.3,y+0.72,cz-0.2);box(3.5,0.7,0.05,'#d9d4ca',cx-0.3,y+0.36,cz+0.12,scene,false);
   const tt=new THREE.Mesh(new THREE.CylinderGeometry(0.3,0.3,0.05,18),mat('#ffffff'));tt.position.set(cx+1.0,y+0.95,cz+1.55);tt.castShadow=true;scene.add(tt);
   box(0.07,0.95,0.07,'#d9d4ca',cx+1.0,y+0.47,cz+1.55,scene,false);
-  plant(cx-1.95,y,cz+1.7,0.8);plant(cx+2.7,y,cz-1.9,0.8);
+  plant(cx-2.0,y,cz+0.55,0.7);plant(cx+2.7,y,cz-1.9,0.8);
+  // отдельный стол «Отчёт» у передней стены
+  const rx=cx-1.2,rz=cz+0.85;
+  box(1.0,0.05,0.55,'#ffffff',rx,y+0.72,rz+0.72);box(0.95,0.7,0.05,'#d9d4ca',rx,y+0.36,rz+0.98,scene,false);
+  box(0.4,0.26,0.04,'#374151',rx,y+0.9,rz+0.6);box(0.16,0.02,0.22,'#f1f5f9',rx+0.32,y+0.76,rz+0.7);
+  box(0.36,0.26,0.32,'#e5e7eb',rx,y+0.13,rz-0.08);box(0.36,0.42,0.05,'#e5e7eb',rx,y+0.42,rz-0.27,scene,false);
+  fbTeam.bots.reporter=new Bot('reporter',{x:rx,z:rz,y},{seated:true,team:fbTeam,roles:FB_ROLES});
   FB_SEATS.forEach((role,k)=>{
     const x=cx-0.3+(k-2)*0.74,z=cz-0.95;
     box(0.36,0.26,0.32,'#e5e7eb',x,y+0.13,z-0.08);box(0.36,0.42,0.05,'#e5e7eb',x,y+0.42,z-0.27,scene,false);
@@ -389,6 +396,10 @@ function logEv(team,from,to,text){
 async function work(team,r,text,sec){const b=team.bots[r];b.active++;bubble(b,text,sec);logEv(team,b.R.n,null,text);await sleep(sec);b.active--;}
 function approach(team,a,b){
   const A=team.bots[a],B=team.bots[b],cx=team.cx,cz=team.cz,back=cz-1.65,side=cx+1.95,near=[cx+1.5,cz+0.95];
+  if(a==='reporter'&&b==='lead') return [[cx-0.6,cz+0.85],[cx+0.5,cz+0.85]];
+  if(a==='lead'&&b==='reporter') return [[cx+0.5,cz+0.5],[cx-0.6,cz+0.5]];
+  if(b==='reporter') return [[A.home.x,back],[side,back],[side,cz+0.5],[cx-0.6,cz+0.5]];
+  if(a==='reporter') return [[cx-0.6,cz+0.5],[side,cz+0.5],[side,back],[B.home.x+0.37,back],[B.home.x+0.37,B.home.z-0.25]];
   if(b==='lead') return [[A.home.x,back],[side,back],[side,cz+0.95],near];
   if(a==='lead') return [near,[side,cz+0.5],[side,back],[B.home.x+0.37,back],[B.home.x+0.37,B.home.z-0.25]];
   const s=B.home.x>A.home.x?-0.37:0.37;
@@ -700,7 +711,7 @@ document.getElementById('reset').onclick=home;
 document.querySelectorAll('[data-sp]').forEach(b=>b.onclick=()=>{speed=+b.dataset.sp;document.querySelectorAll('[data-sp]').forEach(x=>x.classList.toggle('on',x===b));});
 
 // ===== Легенда =====
-document.getElementById('legend').innerHTML=Object.values(ROLES).map(r=>`<span><i style="background:${r.c}"></i>${r.n}</span>`).join('')+'<span>✨ голова светится = работает</span>';
+document.getElementById('legend').innerHTML=[...Object.values(ROLES),FB_ROLES.launcher,FB_ROLES.reporter].map(r=>`<span><i style="background:${r.c}"></i>${r.n}</span>`).join('')+'<span>✨ голова светится = работает</span>';
 
 // ===== Цикл =====
 function initView(){resize();const f=fitView();camera.zoom=f.zoom;camera.updateProjectionMatrix();target.copy(f.t);placeCam();}
