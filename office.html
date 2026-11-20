@@ -193,7 +193,17 @@ function cellWalls(cx,cz,tall=1.25,low=0.65){
   wall(cx-hx,cz-hz,cx+hx,cz-hz,tall); wall(cx-hx,cz-hz,cx-hx,cz+hz,tall); wall(cx+hx,cz-hz,cx+hx,cz+hz,low);
   wall(cx-hx,cz+hz,cx+1.25,cz+hz,low); wall(cx+2.1,cz+hz,cx+hx,cz+hz,low);
 }
-function buildTeams(){BRANDS.slice(0,5).forEach((b,i)=>{
+let built={objs:[],labels:0};
+function clearTeams(){ // убрать кабинеты-заглушки, чтобы построить живые
+  teams.forEach(t=>t.dead=true);teams.length=0;
+  built.objs.forEach(o=>scene.remove(o));
+  labels.slice(built.labels).forEach(L=>{if(!L.dead&&L.team)removeLabel(L);});
+  for(let i=clickables.length-1;i>=0;i--) if(clickables[i].userData.cabRun) clickables.splice(i,1);
+}
+function buildTeams(){const before=scene.children.length,lb=labels.length;built.labels=lb;_buildTeams();
+  built.objs=scene.children.slice(before);labels.slice(lb).forEach(L=>L.team=true);
+  clickables.forEach(c=>{if(built.objs.includes(c))c.userData.cabRun=true;});}
+function _buildTeams(){BRANDS.slice(0,5).forEach((b,i)=>{
   const [c,r]=cellPos[i],cx=COLS[c],cz=ROWZ[r];
   const fl=box(CW-0.1,0.05,CD-0.1,new THREE.MeshLambertMaterial({color:tint(b.color,b.active?0.7:0.86)}),cx,0.025,cz,scene,false);
   fl.userData.cab=i;clickables.push(fl);
@@ -394,6 +404,7 @@ async function teamLoop(team){
   const evs=(OFFICE.events||[]).filter(e=>e.team===team.b.logo);
   if(evs.length) await playReal(team,evs);
   for(;;){
+    if(team.dead)return;
     if(meeting.pending){await attendMeeting(team);continue;}
     if(!DEMO||!team.b.active||team.real){await sleep(1);continue;}
     for(const s of script(team.b)){
@@ -514,7 +525,11 @@ function showKeyForm(){
   const f=document.createElement('form');f.id='keyf';f.style.cssText='display:flex;gap:6px;padding:0 12px 10px';
   f.innerHTML='<input id="keyi" type="password" placeholder="Ключ GitHub из Головы (github_pat_…)" style="flex:1;border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:8px;padding:7px 9px;font:inherit"><button style="border:0;background:var(--ink);color:var(--panel);border-radius:8px;padding:0 10px;cursor:pointer">OK</button>';
   f.onsubmit=e=>{e.preventDefault();const v=document.getElementById('keyi').value.trim();if(!/^(github_pat_|ghp_)[A-Za-z0-9_]{20,}$/.test(v)){addMsg('sys','Это не похоже на ключ GitHub',null,false);return;}
-    try{localStorage.setItem('cg2-token',v)}catch(e){};location.reload();};
+    try{localStorage.setItem('cg2-token',v)}catch(e){};
+    token=v;addMsg('sys','Проверяю ключ…',null,false);
+    loadLive().then(()=>{clearTeams();buildTeams();teams.forEach(teamLoop);f.remove();
+      const b=document.getElementById('demo');b.textContent='ЖИВОЕ';b.style.background='#10b981';setInterval(poll,20000);})
+    .catch(err=>addMsg('sys','Ключ не сработал: '+err.message+'. Проверь, что у ключа доступ к golova-data, Contents: Read and write.',null,false));};
   CH.insertBefore(f,document.getElementById('f'));
 }
 function placeholderBrands(){return [1,2,3,4,5].map(i=>({id:'x'+i,name:'Кабинет '+i,logo:String(i),color:'#64748b',st:'go',kpi:'',kv:0,kt:1,fmt:'',accs:[],posts7:0,active:false}));}
