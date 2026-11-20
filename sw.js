@@ -1,6 +1,6 @@
 // Offline cache for «Голова». Serves from cache instantly,
 // refreshes files in the background so updates show on the next open.
-const CACHE = 'golova-v10';
+const CACHE = 'golova-v11';
 const SHELL = ['./', './index.html', './keystore.js', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
@@ -29,6 +29,7 @@ self.addEventListener('fetch', e => {
       if (res && (res.ok || res.type === 'opaque')) cache.put(key, res.clone());
       return res;
     }).catch(() => hit);
+    if (new URL(req.url).pathname.endsWith('office.html')) return net.then(r => r || hit, () => hit); // офис: сначала свежая версия
     return hit || net;
   }));
 });
