@@ -138,6 +138,16 @@ const FB_ROLES={
 };
 FB_ROLES.reporter={n:'Отчёт',c:'#06b6d4',can:'Каждый день собирает отчёт: спенд, реги, FTD, CFD, ROI по GEO и креативам (fb-stats, fb-results); формат «сейчас / цель / результат / шаг» — тимлиду и COO',cant:'Решать, что выключать или масштабировать; трогать кампании'};
 const FB_SEATS=['analyst','creator','editor','launcher','tester'];
+// Команда El Rebote (Мексика, Liga MX → прогнозы и промокоды): карусели IG + TikTok + Threads
+const ER_ROLES={
+ analyst:{...ROLES.analyst,can:'Ищет в Liga MX факт и «цифру, которую никто не заметил» (hecho → dato → qué cambia), читает охваты постов, даёт ТЗ на 3 карусели в день',cant:'Менять формат и рубрики без тимлида'},
+ creator:{...ROLES.creator,n:'Копирайтер',can:'Тексты каруселей и подписей на мексиканском испанском (El dato / ¿Quién pasa? / La neta) + перевод RU в captions.md',cant:'Обещать «лёгкие деньги», писать без 18+'},
+ editor:{...ROLES.editor,n:'Дизайнер',can:'Рендер слайдов по шаблону brand/src/post.html (#cover #hecho #dato #cambia), 1080×1350, цвета и шрифты бренда',cant:'Эмблемы клубов и матчевые кадры, платные инструменты'},
+ tester:{...ROLES.tester,n:'Контроль',can:'Чек-лист: факт и цифра верны, испанский, 18+, нет эмблем, нет скринов выигрышей, слот CDMX 08:00/14:00/20:00',cant:'Править самому — возвращает на переделку'},
+ uploader:{...ROLES.uploader,n:'Публикация',can:'Ставит посты в IG @elrebote_mx, TikTok @elrebotemx, Threads через Chrome (браузер 1 залогинен)',cant:'Публиковать без «ок» контроля, вводить пароли и коды (их вводит Мирас)'},
+ lead:{...ROLES.lead,can:'Ведёт тест 19.11–02.12 (решение 03.12), раздаёт задачи, отчитывается COO. Этап 2 — воронка WhatsApp/Telegram',cant:'Деньги, новые офферы и букмекеры, старт этапа 2 — только через COO → Мирас'},
+};
+const ER_SEATS=['analyst','creator','editor','tester','uploader'];
 const SEAT_ORDER=['analyst','creator','editor','tester','uploader'];
 
 // ===== Сцена: фиксированный изометрический вид, без вращения =====
@@ -258,7 +268,7 @@ box(0.42,0.26,0.04,'#374151',OX-0.3,0.92,OZ-1.25);
 const mt=new THREE.Mesh(new THREE.CylinderGeometry(0.65,0.65,0.06,26),mat('#ffffff'));mt.position.set(OX-0.3,0.72,OZ+0.55);mt.castShadow=true;scene.add(mt);
 box(0.12,0.7,0.12,'#d9d4ca',OX-0.3,0.36,OZ+0.55,scene,false);
 plant(OX+1.8,0,OZ-1.6,0.9);
-const MEET=[[-1.1,-0.1],[-0.8,0.85],[0,1.25],[0.8,0.85],[1.1,-0.05],[0,-0.9]].map(([dx,dz])=>[OX-0.3+dx,OZ+0.55+dz]);
+const MEET=[[-1.1,-0.1],[-0.8,0.85],[0,1.25],[0.8,0.85],[1.1,-0.05],[0,-0.9],[-0.75,-0.75]].map(([dx,dz])=>[OX-0.3+dx,OZ+0.55+dz]);
 const coo=new Bot('coo',{x:OX-0.3,z:OZ-1.7},{scale:1.4});
 const cooLbl=addLabel({pos:()=>coo.headPos(0.5),pri:9,minZ:0,cls:'coo',html:'COO · написать'});
 cooLbl.el.onclick=openChat;
@@ -267,7 +277,7 @@ plant(-7.25,0,6.0,1);plant(8.2,0,-4.5,1);
 // ---------- Остальные комнаты вокруг, на разной высоте, с лестницами ----------
 const OTHER=[
  {name:'FACEBOOK',sub:'7 ботов · тимлид → COO',fb:true,x:-12,y:1.6,z:-0.5,w:6.5,d:5,top:'#dbe7fb'},
- {name:'ТРАФИК',sub:'команда не собрана',x:-12,y:3.2,z:-9.5,w:6.5,d:5,top:'#fde7d2'},
+ {name:'ТРАФИК',sub:'El Rebote 🇲🇽 · 6 ботов · тимлид → COO',er:true,x:-12,y:3.2,z:-9.5,w:6.5,d:5,top:'#fde7d2'},
  {name:'SEO',sub:'команда не собрана',x:1,y:1.6,z:-10,w:6.5,d:5,top:'#dcf2df'},
  {name:'ЛИЧНОЕ',sub:'команда не собрана',x:12.8,y:-1.6,z:-1,w:6.5,d:5,top:'#f8dde7'},
  {name:'ИДЕИ',sub:'новые проекты',x:-1,y:-1.6,z:10.5,w:6.5,d:5,top:'#fbf3c9'},
@@ -275,7 +285,7 @@ const OTHER=[
 ];
 OTHER.forEach(r=>{
   slab(r);
-  if(!r.dashed&&!r.fb){
+  if(!r.dashed&&!r.fb&&!r.er){
     emptyDesk(r.x-1.6,r.y,r.z-0.6);emptyDesk(r.x+0.4,r.y,r.z-0.6);emptyDesk(r.x-1.6,r.y,r.z+1.5);emptyDesk(r.x+0.4,r.y,r.z+1.5);
     plant(r.x+2.6,r.y,r.z-1.9,0.8);
   }
@@ -313,6 +323,28 @@ const fbTeam={b:{id:'fb',name:'Facebook',logo:'FB',color:'#1877f2',active:true,s
   });
   fbTeam.bots.lead=new Bot('lead',{x:cx+1.0,z:cz+0.95,y},{team:fbTeam,scale:1.18,roles:FB_ROLES});
 })();
+
+// ---------- Комната Трафик: El Rebote — аналитик, копирайтер, дизайнер, контроль, публикация + тимлид ----------
+const ERR=OTHER.find(r=>r.er),EY=ERR.y;
+const erTeam={b:{id:'er',name:'El Rebote',logo:'ER',color:'#16B21B',active:true,st:'go',fmt:'El dato',accs:[['IG','@elrebote_mx',0,1]],
+  report:'ER: тест 19.11–02.12, 3 карусели/день IG + TikTok + Threads · цель ~30 FTD · решение 03.12'},i:6,cx:ERR.x,cz:ERR.z,row:0,bots:{},er:true};
+(function(){
+  const cx=erTeam.cx,cz=erTeam.cz,y=EY,hx=CW/2,hz=CD/2;
+  box(CW-0.1,0.05,CD-0.1,new THREE.MeshLambertMaterial({color:tint('#16B21B',0.8)}),cx,y+0.025,cz,scene,false);
+  wall(cx+hx,cz-hz,cx+hx,cz+hz,0.65,y);wall(cx-hx,cz+hz,cx+1.25,cz+hz,0.65,y);wall(cx+2.1,cz+hz,cx+hx,cz+hz,0.65,y);
+  box(3.6,0.06,0.7,'#ffffff',cx-0.3,y+0.72,cz-0.2);box(3.5,0.7,0.05,'#d9d4ca',cx-0.3,y+0.36,cz+0.12,scene,false);
+  const tt=new THREE.Mesh(new THREE.CylinderGeometry(0.3,0.3,0.05,18),mat('#ffffff'));tt.position.set(cx+1.0,y+0.95,cz+1.55);tt.castShadow=true;scene.add(tt);
+  box(0.07,0.95,0.07,'#d9d4ca',cx+1.0,y+0.47,cz+1.55,scene,false);
+  plant(cx-2.0,y,cz+0.55,0.7);plant(cx+2.7,y,cz-1.9,0.8);
+  ER_SEATS.forEach((role,k)=>{
+    const x=cx-0.3+(k-2)*0.74,z=cz-0.95;
+    box(0.36,0.26,0.32,'#e5e7eb',x,y+0.13,z-0.08);box(0.36,0.42,0.05,'#e5e7eb',x,y+0.42,z-0.27,scene,false);
+    box(0.38,0.24,0.04,role==='editor'?'#16B21B':role==='uploader'?'#FF1F8E':'#374151',x,y+0.9,z+0.5);
+    erTeam.bots[role]=new Bot(role,{x,z,y},{seated:true,team:erTeam,roles:ER_ROLES});
+  });
+  erTeam.bots.lead=new Bot('lead',{x:cx+1.0,z:cz+0.95,y},{team:erTeam,scale:1.18,roles:ER_ROLES});
+})();
+const EXTRA=[fbTeam,erTeam]; // команды вне Соцсетей
 
 // ===== Бот =====
 function Bot(role,home,o={}){
@@ -495,6 +527,9 @@ async function teamLoop(team){
 // ===== Совещание у COO =====
 const meeting={pending:false,arrived:0,done:null,release:null};
 function routeToCoo(team){
+  const FBR_ROUTE=[[-8.75,0,FY],[-7.6,0,0],[-7.4,CORR[0]],[AISLE_X,CORR[0]],[AISLE_X,CORR[1]],[OX+1.65,CORR[1]],[OX+1.65,OZ+1.6]];
+  if(team.er){const cx=team.cx,cz=team.cz; // дверь → лестница вниз в Facebook → через Facebook → вниз в Соцсети → COO
+    return [[cx+1.65,cz+1.6],[cx+1.65,cz+2.3],[-12,cz+2.3],[-12,-7,EY],[-12,-3,FY],[-9.3,-3],[-9.3,0],...FBR_ROUTE,MEET[6]];}
   if(team.fb){const cx=team.cx,cz=team.cz; // дверь → лестница вниз → коридор → проход → кабинет COO
     return [[cx+1.65,cz+1.6],[cx+1.65,0],[-8.75,0,FY],[-7.6,0,0],[-7.4,CORR[0]],[AISLE_X,CORR[0]],[AISLE_X,CORR[1]],[OX+1.65,CORR[1]],[OX+1.65,OZ+1.6],MEET[5]];}
   const cx=team.cx,cz=team.cz,cor=CORR[team.row],cooDoor=[OX+1.65,CORR[1]];
@@ -523,8 +558,8 @@ async function holdMeeting(q,live){
   meeting.pending=true;meeting.arrived=0;meeting.done=new Promise(r=>meeting.release=r);
   coo.active++;bubble(coo,'Собираю тимлидов',3);logEv(null,'COO','тимлиды','совещание: «'+q+'»');
   addMsg('sys','COO созвал совещание · тимлиды идут к нему');
-  let t=0;while(meeting.arrived<teams.length+1&&t<60){await sleep(0.3);t+=0.3;}
-  for(const tm of [...teams,fbTeam]){const L=tm.bots.lead;L.active++;const r=teamReport(tm.b);bubble(L,r,2.4);logEv(tm,'Тимлид','COO',r);await sleep(2.4);L.active--;}
+  let t=0;while(meeting.arrived<teams.length+EXTRA.length&&t<60){await sleep(0.3);t+=0.3;}
+  for(const tm of [...teams,...EXTRA]){const L=tm.bots.lead;L.active++;const r=teamReport(tm.b);bubble(L,r,2.4);logEv(tm,'Тимлид','COO',r);await sleep(2.4);L.active--;}
   bubble(coo,'Понял, отвечаю Мирасу',2);await sleep(2);
   if(live) addMsg('sys','Передал в штаб: Клод проверит команды и ответит здесь (обычно 1–3 мин)',null,false);
   else addMsg('coo',cooAnswer(q),'COO · по данным Головы, 0 токенов');
@@ -535,7 +570,7 @@ function cooAnswer(q){
   if(/сто/.test(s)) return idle.length?`Стоят ${idle.length} из 5:\n`+idle.map(b=>`• ${b.name} — ${b.accs.map(a=>a[0]+' '+fmtN(a[2])).join(', ')}`).join('\n')+`\n\nПредлагаю: перезапустить по 1 ролику в день, команды готовы.`:'Никто не стоит.';
   if(/реш/.test(s)) return need.length?need.map(b=>`• ${b.name}: ${b.kpi} ${b.kv} из ${b.kt}. Тимлид ждёт тебя.`).join('\n'):'Сейчас решений от тебя не нужно.';
   if(/происход|статус|как дела|отч/.test(s)||s.length<4)
-    return `Сводка на ${DATA_AT}:\n`+BRANDS.map(b=>'• '+teamReport(b)).join('\n')+'\n• '+fbTeam.b.report+`\n\nСоцсети: работают ${BRANDS.length-idle.length} команды, стоят ${idle.length}. Нужно твоё решение: ${need.map(b=>b.name).join(', ')||'нет'}.`;
+    return `Сводка на ${DATA_AT}:\n`+BRANDS.map(b=>'• '+teamReport(b)).join('\n')+'\n• '+EXTRA.map(t=>t.b.report).join('\n• ')+`\n\nСоцсети: работают ${BRANDS.length-idle.length} команды, стоят ${idle.length}. Нужно твоё решение: ${need.map(b=>b.name).join(', ')||'нет'}.`;
   return `Записал: «${q}».\nВ рабочей версии вопрос уйдёт в штаб (/shtab), ответ придёт сюда же. Сейчас прототип — отвечаю по данным: «что происходит», «кто стоит», «где моё решение».`;
 }
 
@@ -600,7 +635,7 @@ const RN={...Object.fromEntries(Object.entries(ROLES).map(([k,v])=>[k,v.n])),lau
 const JR={day:'',evs:[],seen:new Set(),live:new Set(),playing:false,init:false};
 const today=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;};
 const evKey=e=>[e.t,e.sid,e.from,e.text].join('|');
-const teamFor=logo=>teams.find(t=>t.b.logo===logo)||(logo==='FB'?fbTeam:null);
+const teamFor=logo=>teams.find(t=>t.b.logo===logo)||(EXTRA.find(t=>t.b.logo===logo)||null);
 async function getText(path){const r=await gh(path);if(!r.ok)return null;const j=await r.json();return j.content?b64d(j.content):null;}
 async function fetchDay(day){const t=await getText('office/log/'+day+'.jsonl');if(!t)return[];
   return t.split('\n').filter(Boolean).map(l=>{try{return JSON.parse(l)}catch(e){return null}}).filter(Boolean).sort((a,b)=>a.t<b.t?-1:a.t>b.t?1:0);}
@@ -616,7 +651,7 @@ function playGroups(gs){ // каждая команда проигрывает �
     if(tm){tm.q=(tm.q||Promise.resolve()).then(()=>playReal(tm,g.evs)).catch(()=>{});}
     else{coo.q=(coo.q||Promise.resolve()).then(async()=>{for(const e of g.evs){coo.active++;bubble(coo,e.text,3);await sleep(3);coo.active--;}}).catch(()=>{});}
   }
-  return Promise.all([...teams,fbTeam,coo].map(t=>t.q));
+  return Promise.all([...teams,...EXTRA,coo].map(t=>t.q));
 }
 async function journalTick(){
   if(!LIVE||JR.day)return;
@@ -666,7 +701,7 @@ async function boot(){
   if(token){try{await loadLive();}catch(e){addMsg('sys','Не загрузил данные: '+e.message,null,false);}}
   if(!LIVE){BRANDS=placeholderBrands();badge.textContent='НЕТ КЛЮЧА';showKeyForm();}
   else{badge.textContent='ЖИВОЕ';badge.style.background='#10b981';setInterval(poll,20000);}
-  buildTeams();teams.forEach(teamLoop);teamLoop(fbTeam);if(LIVE)initJournal();
+  buildTeams();teams.forEach(teamLoop);EXTRA.forEach(teamLoop);if(LIVE)initJournal();
 }
 
 // ===== Чат с COO =====
@@ -716,7 +751,7 @@ function botCard(bot){
   showCard(`<h3><i style="background:${R.c}"></i>${R.n} · ${t.b.name}</h3>
   <p class="k">Сейчас</p><p>${bot.active?'работает (голова светится)':'отдыхает'}</p>
   <p class="k">Может</p><p>${R.can}</p><p class="k">Не может</p><p>${R.cant}</p>
-  <p class="k">Память и инструкция</p><p><code>${t.fb?'fb/office/'+bot.role+'.md':'office/social/'+t.b.logo.toLowerCase()+'/'+bot.role+'/'}</code></p>`);
+  <p class="k">Память и инструкция</p><p><code>${t.fb?'fb/office/'+bot.role+'.md':t.er?'new source of traffic/CLAUDE.md':'office/social/'+t.b.logo.toLowerCase()+'/'+bot.role+'/'}</code></p>`);
 }
 
 // ===== Камера: пан и зум, без вращения =====
@@ -775,6 +810,7 @@ cv.addEventListener('pointerup',e=>{
   if(u.bot) botCard(u.bot);
   else if(u.cab!=null){const t=teams[u.cab];flyTo(V(t.cx,0,t.cz),3.2);}
   else if(u.room&&u.room.fb) flyTo(V(fbTeam.cx,FY,fbTeam.cz),3.2);
+  else if(u.room&&u.room.er) flyTo(V(erTeam.cx,EY,erTeam.cz),3.2);
   else if(u.room&&u.room!==SOC) showCard(`<h3>${u.room.name}</h3><p>${u.room.sub}</p><p>Команда ещё не собрана. Скажи, кого посадить — сделаю кабинеты, как в Соцсетях.</p>`);
 });
 let fly=null;
@@ -797,7 +833,7 @@ function frame(now){
   for(let i=timers.length-1;i>=0;i--) if(timers[i].at<=simT){const r=timers[i].r;timers.splice(i,1);r();}
   if(fly){fly.k=Math.min(1,fly.k+rdt/0.6);const k=1-Math.pow(1-fly.k,3);
     target.lerpVectors(fly.from,fly.to,k);camera.zoom=fly.fz+(fly.zm-fly.fz)*k;camera.updateProjectionMatrix();placeCam();if(fly.k>=1)fly=null;}
-  [...teams,fbTeam].forEach(t=>Object.values(t.bots).forEach(b=>b.update(dt,clock)));coo.update(dt,clock);
+  [...teams,...EXTRA].forEach(t=>Object.values(t.bots).forEach(b=>b.update(dt,clock)));coo.update(dt,clock);
   renderer.render(scene,camera);layoutLabels();
   requestAnimationFrame(frame);
 }
