@@ -43,7 +43,12 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font:13px/1.
 #log{position:fixed;right:12px;bottom:10px;width:300px;background:rgba(17,24,39,.88);color:#e5e7eb;border-radius:10px;padding:6px 10px;font-size:11px}
 #log b.h{display:flex;justify-content:space-between;cursor:pointer;font-size:11.5px;color:#fff}
 #logl{max-height:52px;overflow:auto}
-#log.big #logl{max-height:220px}
+#log.big #logl{max-height:340px}
+#log.big{width:380px}
+#logbar{display:flex;gap:4px;margin:4px 0 2px}
+#logbar select,#logbar button{background:#1f2937;color:#e5e7eb;border:1px solid #374151;border-radius:6px;font:inherit;font-size:11px;padding:1px 5px;cursor:pointer}
+#logl div.live{color:#93c5fd}
+#logl div.task{color:#fbbf24;font-weight:600;border-bottom:0;padding-top:6px}
 #logl div{padding:2px 0;border-bottom:1px solid rgba(255,255,255,.06)}
 #logl em{color:#9ca3af;font-style:normal}
 #chat{position:fixed;left:0;top:0;bottom:0;width:360px;max-width:100%;background:var(--panel);border-right:1px solid var(--line);transform:translateX(-102%);transition:transform .25s;display:flex;flex-direction:column;z-index:5}
@@ -95,7 +100,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font:13px/1.
   <button id="reset">Весь офис</button>
 </div>
 <div id="legend"></div>
-<div id="log"><b class="h">Журнал команд <span>▴</span></b><div id="logl"></div></div>
+<div id="log"><b class="h">Журнал команд <span>▴</span></b><div id="logbar"><select id="logday" title="День журнала"><option value="">Сегодня · живое</option></select><button id="logplay" title="Проиграть выбранный день ботами">▶ проиграть</button></div><div id="logl"></div></div>
 <aside id="chat">
   <header><div class="av">C</div><div><b>COO</b><small>все комнаты · отвечает по данным Головы</small></div><button id="cx" aria-label="Закрыть">×</button></header>
   <div id="msgs"></div>
@@ -386,14 +391,20 @@ function sleep(s){return new Promise(r=>timers.push({at:simT+s,r}));}
 // ===== Журнал (в рабочей версии — golova-data/office/events.jsonl) =====
 const LOGL=document.getElementById('logl');
 document.querySelector('#log .h').onclick=()=>{const l=document.getElementById('log');l.classList.toggle('big');l.querySelector('.h span').textContent=l.classList.contains('big')?'▾':'▴';};
-function logEv(team,from,to,text){
-  const d=document.createElement('div'),t=new Date();
-  d.innerHTML=`<em>${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}</em> <b style="color:${team?team.b.color:'#eab308'}">${team?team.b.logo:'COO'}</b> ${from}${to?' → '+to:''}: ${text}`;
-  LOGL.prepend(d);while(LOGL.children.length>40)LOGL.lastChild.remove();
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let LOG_T=null; // время события из журнала (во время проигрывания); иначе — сейчас
+const hhmm=t=>`${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}`;
+function logEv(team,from,to,text,o={}){
+  const d=document.createElement('div');
+  const hm=o.t?String(o.t).slice(11,16):((team&&team.curT)||LOG_T||hhmm(new Date()));
+  if(o.cls)d.className=o.cls;
+  d.innerHTML=`<em>${hm}</em> <b style="color:${team?team.b.color:'#eab308'}">${team?team.b.logo:(o.logo||'COO')}</b> ${esc(from)}${to?' → '+esc(to):''}: ${esc(text)}`;
+  LOGL.prepend(d);while(LOGL.children.length>400)LOGL.lastChild.remove();
 }
+function logTask(title,where,t){const d=document.createElement('div');d.className='task';d.innerHTML=`<em>${String(t||'').slice(11,16)}</em> ▸ ${esc(title)}${where?' · '+esc(where):''}`;LOGL.prepend(d);}
 
 // ===== Действия в кабинете =====
-async function work(team,r,text,sec){const b=team.bots[r];b.active++;bubble(b,text,sec);logEv(team,b.R.n,null,text);await sleep(sec);b.active--;}
+async function work(team,r,text,sec){const b=team.bots[r]||team.bots.lead;b.active++;bubble(b,text,sec);logEv(team,b.R.n,null,text);await sleep(sec);b.active--;}
 function approach(team,a,b){
   const A=team.bots[a],B=team.bots[b],cx=team.cx,cz=team.cz,back=cz-1.65,side=cx+1.95,near=[cx+1.5,cz+0.95];
   if(a==='reporter'&&b==='lead') return [[cx-0.6,cz+0.85],[cx+0.5,cz+0.85]];
@@ -406,6 +417,7 @@ function approach(team,a,b){
   return [[A.home.x,back],[B.home.x+s,back],[B.home.x+s,B.home.z-0.25]];
 }
 async function pass(team,a,b,text,sec=2.8){
+  if(!team.bots[a])a='lead';if(!team.bots[b]||b===a)b=a==='lead'?'analyst':'lead';
   const A=team.bots[a],B=team.bots[b],route=approach(team,a,b);
   A.active++;await A.walk(route);
   A.g.rotation.y=Math.atan2(B.g.position.x-A.g.position.x,B.g.position.z-A.g.position.z);
@@ -432,15 +444,21 @@ function script(b){
     ['work','lead','Отчёт COO: +1 ролик',2],
   ];
 }
-async function playReal(team,evs){ // настоящий журнал команды (events.jsonl)
+async function playReal(team,evs){ // настоящий журнал команды (events.json / office/log)
   team.real=true;
   for(const e of evs){
+    team.curT=e.t?String(e.t).slice(11,16):null;
     if(e.kind==='work') await work(team,e.from,e.text,3);
     else if(e.kind==='pass') await pass(team,e.from,e.to,e.text,2.6);
     else if(e.kind==='coo') await reportToCoo(team,e);
   }
+  team.curT=null;
 }
 async function reportToCoo(team,e){
+  if(e.src){ // авто-журнал: доклад только пузырём, без сообщений в чат COO
+    const L=team.bots.lead;L.active++;bubble(L,e.text,3.5);logEv(team,'Тимлид','COO',e.text);await sleep(3.5);L.active--;
+    coo.active++;bubble(coo,'Принял',1.5);await sleep(1.5);coo.active--;return;
+  }
   const L=team.bots.lead,route=routeToCoo(team),spot=route[route.length-1];
   L.active++;await L.walk(route);
   L.g.rotation.y=Math.atan2(coo.g.position.x-L.g.position.x,coo.g.position.z-L.g.position.z);
@@ -574,7 +592,62 @@ async function sendToShtab(text){
   }catch(e){addMsg('sys','Не отправилось: '+e.message,null,false);}
   return false;
 }
-async function poll(){if(!LIVE)return;try{const {data}=await getJSON('tasks.json');if(data)renderChat(data);}catch(e){}}
+async function poll(){if(!LIVE)return;try{const {data}=await getJSON('tasks.json');if(data)renderChat(data);}catch(e){}journalTick();}
+
+// ===== Живой журнал: office/log/<день>.jsonl (сводки Haiku) + office/live.json (шаги прямо сейчас) =====
+// Пишет хук ~/.claude/hooks/office-log.js. Смотреть — 0 токенов.
+const RN={...Object.fromEntries(Object.entries(ROLES).map(([k,v])=>[k,v.n])),launcher:FB_ROLES.launcher.n,reporter:FB_ROLES.reporter.n,COO:'COO',coo:'COO'};
+const JR={day:'',evs:[],seen:new Set(),live:new Set(),playing:false,init:false};
+const today=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;};
+const evKey=e=>[e.t,e.sid,e.from,e.text].join('|');
+const teamFor=logo=>teams.find(t=>t.b.logo===logo)||(logo==='FB'?fbTeam:null);
+async function getText(path){const r=await gh(path);if(!r.ok)return null;const j=await r.json();return j.content?b64d(j.content):null;}
+async function fetchDay(day){const t=await getText('office/log/'+day+'.jsonl');if(!t)return[];
+  return t.split('\n').filter(Boolean).map(l=>{try{return JSON.parse(l)}catch(e){return null}}).filter(Boolean).sort((a,b)=>a.t<b.t?-1:a.t>b.t?1:0);}
+function groups(evs){const g=[];for(const e of evs){const k=(e.sid||'')+'|'+(e.task||'');const last=g[g.length-1];
+  if(last&&last.k===k)last.evs.push(e);else g.push({k,task:e.task||'Задача',where:e.where,team:e.team,evs:[e]});}return g;}
+function logLine(e,cls){const tm=teamFor(e.team);
+  logEv(tm,RN[e.from]||e.from,e.kind==='coo'?'COO':(e.to?RN[e.to]||e.to:null),e.text,{t:e.t,logo:e.team||'HQ',cls});}
+function renderDay(evs){LOGL.innerHTML='';
+  if(!evs.length){const d=document.createElement('div');d.innerHTML='<em>—</em> За этот день записей нет';LOGL.prepend(d);return;}
+  for(const g of groups(evs)){for(const e of g.evs)logLine(e);logTask(g.task+' · '+(g.team||'HQ'),g.where,g.evs[0].t);}}
+function playGroups(gs){ // каждая команда проигрывает свои задачи по очереди, команды — параллельно
+  for(const g of gs){const tm=teamFor(g.team);
+    if(tm){tm.q=(tm.q||Promise.resolve()).then(()=>playReal(tm,g.evs)).catch(()=>{});}
+    else{coo.q=(coo.q||Promise.resolve()).then(async()=>{for(const e of g.evs){coo.active++;bubble(coo,e.text,3);await sleep(3);coo.active--;}}).catch(()=>{});}
+  }
+  return Promise.all([...teams,fbTeam,coo].map(t=>t.q));
+}
+async function journalTick(){
+  if(!LIVE||JR.day)return;
+  try{
+    const d=today(),evs=await fetchDay(d);
+    if(!JR.init){JR.init=true;JR.evs=evs;evs.forEach(e=>JR.seen.add(evKey(e)));renderDay(evs);}
+    else{const fresh=evs.filter(e=>!JR.seen.has(evKey(e)));JR.evs=evs;
+      if(fresh.length){fresh.forEach(e=>JR.seen.add(evKey(e)));
+        for(const g of groups(fresh))logTask(g.task+' · '+(g.team||'HQ'),g.where,g.evs[0].t);
+        playGroups(groups(fresh));}}
+    const lv=JSON.parse(await getText('office/live.json')||'{}');
+    for(const s of lv.sessions||[]){const tm=teamFor(s.team);
+      const steps=(s.steps||[]).filter(x=>!JR.live.has(s.sid+'|'+x.t+'|'+x.text));
+      const show=JR.live.size?steps:steps.slice(-1);steps.forEach(x=>JR.live.add(s.sid+'|'+x.t+'|'+x.text));
+      for(const x of show){logEv(tm,(RN[x.from]||x.from)+' ⏳',null,x.text+(s.where?' ('+s.where+')':''),{t:x.t,logo:s.team,cls:'live'});
+        if(tm&&!JR.playing){const b=tm.bots[x.from]||tm.bots.lead;b.active++;bubble(b,x.text,2.5);sleep(2.5).then(()=>b.active--);}}
+    }
+  }catch(e){}
+}
+async function initJournal(){
+  const sel=document.getElementById('logday'),btn=document.getElementById('logplay');
+  try{const r=await gh('office/log');if(r.ok){const files=(await r.json()).map(f=>f.name.replace('.jsonl','')).filter(n=>/^\d{4}-\d\d-\d\d$/.test(n)&&n!==today()).sort().reverse();
+    for(const n of files.slice(0,30)){const o=document.createElement('option');o.value=n;o.textContent=n.slice(8,10)+'.'+n.slice(5,7)+'.'+n.slice(0,4);sel.appendChild(o);}}}catch(e){}
+  sel.onchange=async()=>{JR.day=sel.value;
+    if(!JR.day){JR.init=false;JR.seen.clear();return journalTick();}
+    JR.evs=await fetchDay(JR.day);renderDay(JR.evs);};
+  btn.onclick=async()=>{if(JR.playing||!JR.evs.length)return;JR.playing=true;btn.textContent='⏸ идёт…';
+    LOGL.innerHTML='';const gs=groups(JR.evs);for(const g of gs)logTask(g.task+' · '+(g.team||'HQ'),g.where,g.evs[0].t);
+    await playGroups(gs);JR.playing=false;btn.textContent='▶ проиграть';};
+  journalTick();
+}
 function showKeyForm(){
   if(document.getElementById('keyf'))return;
   const f=document.createElement('form');f.id='keyf';f.style.cssText='display:flex;gap:6px;padding:0 12px 10px';
@@ -582,7 +655,7 @@ function showKeyForm(){
   f.onsubmit=e=>{e.preventDefault();const v=document.getElementById('keyi').value.trim();if(!/^(github_pat_|ghp_)[A-Za-z0-9_]{20,}$/.test(v)){addMsg('sys','Это не похоже на ключ GitHub',null,false);return;}
     GKey.set(v);
     token=v;addMsg('sys','Проверяю ключ…',null,false);
-    loadLive().then(()=>{clearTeams();buildTeams();teams.forEach(teamLoop);f.remove();
+    loadLive().then(()=>{clearTeams();buildTeams();teams.forEach(teamLoop);f.remove();initJournal();
       const b=document.getElementById('demo');b.textContent='ЖИВОЕ';b.style.background='#10b981';setInterval(poll,20000);})
     .catch(err=>addMsg('sys','Ключ не сработал: '+err.message+'. Проверь, что у ключа доступ к golova-data, Contents: Read and write.',null,false));};
   CH.insertBefore(f,document.getElementById('f'));
@@ -593,7 +666,7 @@ async function boot(){
   if(token){try{await loadLive();}catch(e){addMsg('sys','Не загрузил данные: '+e.message,null,false);}}
   if(!LIVE){BRANDS=placeholderBrands();badge.textContent='НЕТ КЛЮЧА';showKeyForm();}
   else{badge.textContent='ЖИВОЕ';badge.style.background='#10b981';setInterval(poll,20000);}
-  buildTeams();teams.forEach(teamLoop);teamLoop(fbTeam);
+  buildTeams();teams.forEach(teamLoop);teamLoop(fbTeam);if(LIVE)initJournal();
 }
 
 // ===== Чат с COO =====

@@ -1,6 +1,6 @@
 // Offline cache for «Голова». Serves from cache instantly,
 // refreshes files in the background so updates show on the next open.
-const CACHE = 'golova-v11';
+const CACHE = 'golova-v12';
 const SHELL = ['./', './index.html', './keystore.js', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
